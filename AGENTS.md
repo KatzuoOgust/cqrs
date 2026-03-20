@@ -33,14 +33,18 @@ dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTest
 
 ## Namespace convention
 
-**Always trim `.Tests`, `.Core`, and `.Abstractions` suffixes** from the `RootNamespace` when adding a new project. Every project in this solution maps its root namespace to `KatzuoOgust.Cqrs` regardless of the project name suffix.
+Strip `.Tests`, `.Core`, `.Abstractions` suffixes when setting `RootNamespace`. Keep all other suffixes (`.Middlewares`, `.Pipelines`, etc.).
 
-| Project name | `<RootNamespace>` |
+| Project | `<RootNamespace>` |
 |---|---|
 | `Cqrs` | `KatzuoOgust.Cqrs` |
 | `Cqrs.Tests` | `KatzuoOgust.Cqrs` |
 | `Cqrs.Core` | `KatzuoOgust.Cqrs` |
 | `Cqrs.Abstractions` | `KatzuoOgust.Cqrs` |
+| `Cqrs.Middlewares` | `KatzuoOgust.Cqrs.Middlewares` |
+| `Cqrs.Pipelines` | `KatzuoOgust.Cqrs.Pipelines` |
+
+Projects in `Cqrs.Middlewares` and `Cqrs.Pipelines` must add `using KatzuoOgust.Cqrs;` to reference core types.
 
 ## Adding a new abstraction
 

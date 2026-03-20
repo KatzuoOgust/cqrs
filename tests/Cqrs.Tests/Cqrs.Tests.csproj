@@ -21,6 +21,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Cqrs\Cqrs.csproj" />
+    <ProjectReference Include="..\..\src\Cqrs.Middlewares\Cqrs.Middlewares.csproj" />
+    <ProjectReference Include="..\..\src\Cqrs.Pipelines\Cqrs.Pipelines.csproj" />
   </ItemGroup>
 
 </Project>

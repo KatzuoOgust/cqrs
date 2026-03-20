@@ -31,11 +31,7 @@ public sealed class Dispatcher : IDispatcher
 	{
 		ArgumentNullException.ThrowIfNull(request);
 
-		var invoke = _processorFactoryMap.GetOrAdd(
-			request.GetType(),
-			CreateRequestProcessor,
-			typeof(TResult)
-		);
+		var invoke = _processorFactoryMap.GetOrAdd(request.GetType(), CreateRequestProcessor, typeof(TResult));
 
 		return (TResult)(await invoke(_serviceProvider, request, cancellationToken))!;
 	}
