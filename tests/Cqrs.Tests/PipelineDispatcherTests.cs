@@ -32,8 +32,9 @@ public sealed class PipelineDispatcherTests
 		public async Task<object?> HandleAsync(IRequest request, CancellationToken ct, Func<CancellationToken, Task<object?>> next)
 		{
 			log.Add($"{name}:before");
-			return await next(ct);
+			var result = await next(ct);
 			log.Add($"{name}:after");
+			return result;
 		}
 	}
 
