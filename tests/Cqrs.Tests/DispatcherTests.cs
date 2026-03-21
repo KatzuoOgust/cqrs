@@ -141,4 +141,39 @@ public sealed class DispatcherTests
 			return Task.CompletedTask;
 		}
 	}
+
+	// -----------------------------------------------------------------------
+	// ICommandQueue
+	// -----------------------------------------------------------------------
+
+	[Fact]
+	public async Task EnqueueAsync_VoidCommand_InvokesHandler()
+	{
+		var handler = new PingHandler();
+		var sp = new SimpleServiceProvider();
+		sp.Register<ICommandHandler<PingCommand>>(handler);
+
+		await new Dispatcher(sp).EnqueueAsync(new PingCommand());
+
+		Assert.True(handler.Invoked);
+	}
+
+	[Fact]
+	public async Task EnqueueAsync_CancellationTokenForwarded()
+	{
+		var captured = CancellationToken.None;
+		var sp = new SimpleServiceProvider();
+		sp.Register<ICommandHandler<PingCommand>>(new CapturingHandler(t => captured = t));
+
+		using var cts = new CancellationTokenSource();
+		await new Dispatcher(sp).EnqueueAsync(new PingCommand(), cts.Token);
+
+		Assert.Equal(cts.Token, captured);
+	}
+
+	[Fact]
+	public void Dispatcher_ImplementsICommandQueue()
+	{
+		Assert.IsAssignableFrom<ICommandQueue>(new Dispatcher(new SimpleServiceProvider()));
+	}
 }

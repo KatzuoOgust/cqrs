@@ -10,7 +10,7 @@ namespace KatzuoOgust.Cqrs;
 /// delegate via Expression trees and caches it in <see cref="_processorFactoryMap"/>.
 /// Every subsequent dispatch is a dictionary lookup + direct delegate invocation.
 /// </summary>
-public sealed class Dispatcher : IDispatcher
+public sealed class Dispatcher : IDispatcher, ICommandQueue
 {
 	private readonly IServiceProvider _serviceProvider;
 
@@ -35,6 +35,10 @@ public sealed class Dispatcher : IDispatcher
 
 		return (TResult)(await invoke(_serviceProvider, request, cancellationToken))!;
 	}
+
+	public Task EnqueueAsync<TCommand>(TCommand command, CancellationToken cancellationToken = default)
+		where TCommand : ICommand =>
+		InvokeAsync(command, cancellationToken);
 
 	// -----------------------------------------------------------------------
 	// Factory

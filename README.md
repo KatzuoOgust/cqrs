@@ -26,9 +26,11 @@ Lightweight, framework-agnostic CQRS abstractions for .NET 10. Zero NuGet depend
 | `IQueryHandler<TQuery, TResponse>` | Handles a query |
 | `IEventHandler<TEvent>` | Handles a domain event |
 | `IDispatcher` / `IDispatcherFactory` | Routes a request to its single handler |
+| `ICommandQueue` | Accepts void commands for deferred or immediate processing |
 | `IEventBus` / `IEventBusFactory` | Publishes an event to all handlers |
-| `Dispatcher` | `IDispatcher` implementation (expression-compiled, cached) |
-| `EventDispatcher` | `IEventBus` implementation (expression-compiled, cached) |
+| `IEventDispatcher` | Dispatches an event (delegates to `IEventBus`) |
+| `Dispatcher` | `IDispatcher` + `ICommandQueue` implementation (expression-compiled, cached) |
+| `EventDispatcher` | `IEventBus` + `IEventDispatcher` implementation (expression-compiled, cached) |
 | `NullCommandHandler<T>` | No-op singleton command handler |
 | `NullQueryHandler<T, TResponse>` | No-op singleton query handler |
 | `NullEventHandler<T>` | No-op singleton event handler |

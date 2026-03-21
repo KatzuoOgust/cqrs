@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace KatzuoOgust.Cqrs;
 
-public sealed class EventDispatcher : IEventBus
+public sealed class EventDispatcher : IEventBus, IEventDispatcher
 {
 	private readonly IServiceProvider _serviceProvider;
 
@@ -14,7 +14,10 @@ public sealed class EventDispatcher : IEventBus
 		_serviceProvider = serviceProvider;
 	}
 
-	public async Task PublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
+	public Task PublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
+		where TEvent : IEvent => DispatchAsync(@event, cancellationToken);
+
+	public async Task DispatchAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
 		where TEvent : IEvent
 	{
 		ArgumentNullException.ThrowIfNull(@event);
