@@ -1,39 +1,51 @@
 # AGENTS.md — Cqrs
 
-## Project layout
+## Before you start
 
-```
-src/Cqrs/            # Library — interfaces and null-object implementations only
-tests/Cqrs.Tests/    # xUnit test project
-```
-
-## Build & test commands
+Always build and test before and after making changes:
 
 ```sh
-make build                        # dotnet build Cqrs.slnx
-make test                         # dotnet test Cqrs.slnx
-dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTests"  # single class
+make build   # dotnet build Cqrs.slnx
+make test    # dotnet test Cqrs.slnx
+
+# Run a single test class:
+dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTests"
 ```
 
-## Design rules
+## Where things live
 
-- **Abstractions only** — `src/Cqrs` must not contain concrete dispatcher or event bus implementations. Those belong in consumer packages.
-- **No dependencies** — `Cqrs.csproj` must not reference any NuGet packages (not even `Microsoft.Extensions.*`).
-- **`ICommand` returns `Unit`** — void commands implement `ICommand`, which inherits `IRequest<Unit>`. Do not introduce a separate void overload of `IDispatcher.InvokeAsync`.
-- **Null handlers are singletons** — expose via a static `Instance` property with a private constructor.
-- **Covariant markers** — `IRequest<out TResponse>`, `ICommand<out TResponse>`, `IQuery<out TResponse>` use covariant type parameters.
-- **`IEventBus` fan-out** — events go to *all* handlers; `IDispatcher` routes to *one* handler.
+| What | Where |
+|---|---|
+| Core interfaces & null objects | `src/Cqrs/` |
+| Typed per-request/event middleware | `src/Cqrs.Pipeline.Middlewares/` |
+| Non-generic cross-cutting behaviours | `src/Cqrs.Pipeline.Behaviours/` |
+| All tests | `tests/Cqrs.Tests/` — subdirectory mirrors the subject's namespace |
 
-## Naming conventions
+## Adding a new abstraction
 
-- Interfaces: `I` prefix, e.g. `ICommandHandler<TCommand>`.
-- Null objects: `Null` prefix, e.g. `NullCommandHandler<TCommand>`.
-- Handler method: always `HandleAsync(T input, CancellationToken cancellationToken = default)`.
-- Test classes: `{Subject}Tests`, one file per subject group (`HandlerTests.cs`).
+1. Add the interface in `src/Cqrs/` with a file-scoped `namespace KatzuoOgust.Cqrs;`.
+2. If a null-object makes sense, add `Null{Name}.cs` beside it — private constructor, static `Instance` property.
+3. Place tests under `tests/Cqrs.Tests/` in the subdirectory that matches the subject's namespace.
+4. Add a row to the table in `README.md`.
 
-## Namespace convention
+## Rules — never break these
 
-Strip `.Tests`, `.Core`, `.Abstractions` suffixes when setting `RootNamespace`. Keep all other suffixes (`.Middlewares`, `.Pipelines`, etc.).
+- **`src/Cqrs` is abstractions only.** Do not add concrete dispatcher or bus implementations there; those belong in consumer packages.
+- **`Cqrs.csproj` has zero NuGet dependencies.** Do not add any package references, including `Microsoft.Extensions.*`.
+- **Void commands return `Unit`.** `ICommand` inherits `IRequest<Unit>`. Do not add a void overload of `IDispatcher.InvokeAsync`.
+- **Covariant type parameters.** Keep `out TResponse` on `IRequest<out TResponse>`, `ICommand<out TResponse>`, and `IQuery<out TResponse>`.
+- **`IEventBus` fans out; `IDispatcher` routes to one.** Do not conflate the two.
+
+## Naming
+
+- Interfaces: `I` prefix — `ICommandHandler<TCommand>`.
+- Null objects: `Null` prefix — `NullCommandHandler<TCommand>`.
+- Handler method signature: `HandleAsync(T input, CancellationToken cancellationToken = default)`.
+- Test classes: `{Subject}Tests`.
+
+## Namespaces
+
+Strip `.Tests`, `.Core`, `.Abstractions` when deriving `RootNamespace`; keep all other suffixes.
 
 | Project | `<RootNamespace>` |
 |---|---|
@@ -44,11 +56,4 @@ Strip `.Tests`, `.Core`, `.Abstractions` suffixes when setting `RootNamespace`. 
 | `Cqrs.Pipeline.Middlewares` | `KatzuoOgust.Cqrs.Pipeline.Middlewares` |
 | `Cqrs.Pipeline.Behaviours` | `KatzuoOgust.Cqrs.Pipeline.Behaviours` |
 
-Projects in `Cqrs.Pipeline.Middlewares` and `Cqrs.Pipeline.Behaviours` must add `using KatzuoOgust.Cqrs;` to reference core types.
-
-## Adding a new abstraction
-
-1. Add the interface file in `src/Cqrs/` using the `Cqrs` namespace (file-scoped).
-2. If a null-object implementation makes sense, add `Null{Name}.cs` next to it.
-3. Add tests in `tests/Cqrs.Tests/HandlerTests.cs` (or a new `*Tests.cs` file if unrelated).
-4. Update the table in `README.md`.
+Add `using KatzuoOgust.Cqrs;` in any file under `Cqrs.Pipeline.*` that references core types.
