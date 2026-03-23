@@ -6,10 +6,6 @@ public sealed partial class MiddlewareAwareEventDispatcherTests
 {
 	private static IEventDispatcher MakeDispatcher(IServiceProvider sp) => new EventDispatcher(sp);
 
-	// -----------------------------------------------------------------------
-	// Tests
-	// -----------------------------------------------------------------------
-
 	[Fact]
 	public async Task DispatchAsync_PassesThroughToInner_WhenNoMiddlewares()
 	{

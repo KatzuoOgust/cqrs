@@ -4,9 +4,7 @@ namespace KatzuoOgust.Cqrs;
 
 public sealed partial class EventDispatcherTests
 {
-	// -----------------------------------------------------------------------
-	// Tests
-	// -----------------------------------------------------------------------
+	#region IEventBus.PublishAsync
 
 	[Fact]
 	public async Task PublishAsync_InvokesHandler_WhenSingleHandlerRegistered()
@@ -83,9 +81,9 @@ public sealed partial class EventDispatcherTests
 		Assert.Equal(2, handler.Received.Count);
 	}
 
-	// -----------------------------------------------------------------------
-	// IEventDispatcher
-	// -----------------------------------------------------------------------
+	#endregion
+
+	#region DispatchAsync
 
 	[Fact]
 	public async Task DispatchAsync_InvokesHandler_WhenSingleHandlerRegistered()
@@ -140,4 +138,6 @@ public sealed partial class EventDispatcherTests
 	{
 		Assert.IsAssignableFrom<IEventDispatcher>(new EventDispatcher(new SimpleServiceProvider()));
 	}
+
+	#endregion
 }

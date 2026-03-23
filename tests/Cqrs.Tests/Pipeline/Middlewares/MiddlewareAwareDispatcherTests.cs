@@ -4,10 +4,6 @@ namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 
 public sealed partial class MiddlewareAwareDispatcherTests
 {
-	// -----------------------------------------------------------------------
-	// Tests
-	// -----------------------------------------------------------------------
-
 	[Fact]
 	public async Task InvokeAsync_PassesThroughToHandler_WhenNoMiddlewares()
 	{
@@ -94,5 +90,4 @@ public sealed partial class MiddlewareAwareDispatcherTests
 		Assert.Equal(5, await dispatcher.InvokeAsync(new AddCommand(2, 3)));
 		Assert.Equal(9, await dispatcher.InvokeAsync(new AddCommand(4, 5)));
 	}
-
 }

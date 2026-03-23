@@ -4,10 +4,6 @@ namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 
 public sealed partial class BehaviourAwareDispatcherTests
 {
-	// -----------------------------------------------------------------------
-	// Tests
-	// -----------------------------------------------------------------------
-
 	[Fact]
 	public async Task InvokeAsync_PassesThroughToHandler_WhenNoBehaviours()
 	{
@@ -84,5 +80,4 @@ public sealed partial class BehaviourAwareDispatcherTests
 			() => new BehaviourAwareDispatcher(new Dispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())
 				.InvokeAsync<Unit>(null!));
 	}
-
 }

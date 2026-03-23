@@ -3,13 +3,15 @@ using KatzuoOgust.Cqrs.DependencyInjection.Decoration;
 
 namespace KatzuoOgust.Cqrs.Examples.Decorators;
 
-// ----- Domain -------------------------------------------------------
+#region Domain
 
 public record PlaceOrderCommand(Guid OrderId, string Product) : ICommand;
 public record GetOrderQuery(Guid OrderId) : IQuery<OrderDto>;
 public record OrderDto(Guid OrderId, string Product);
 
-// ----- Handlers -----------------------------------------------------
+#endregion
+
+#region Handlers
 
 internal sealed class PlaceOrderHandler : ICommandHandler<PlaceOrderCommand>
 {
@@ -29,7 +31,9 @@ internal sealed class GetOrderHandler : IQueryHandler<GetOrderQuery, OrderDto>
 	}
 }
 
-// ----- Exact decorator — PlaceOrderCommand only ---------------------
+#endregion
+
+#region Exact decorator — PlaceOrderCommand only
 //
 // Wraps a specific closed ICommandHandler<PlaceOrderCommand>.
 // Registered via Decorate<ICommandHandler<PlaceOrderCommand>>(factory).
@@ -47,7 +51,9 @@ internal sealed class PlaceOrderValidationDecorator(ICommandHandler<PlaceOrderCo
 	}
 }
 
-// ----- Open-generic decorator — every ICommandHandler<T> ------------
+#endregion
+
+#region Open-generic decorator — every ICommandHandler<T>
 //
 // One class, registered once:  Decorate(typeof(ICommandHandler<>), typeof(LoggingCommandDecorator<>))
 // The closed type is constructed automatically on first resolve of each TCommand.
@@ -64,7 +70,9 @@ internal sealed class LoggingCommandDecorator<TCommand>(ICommandHandler<TCommand
 	}
 }
 
-// ----- Example ------------------------------------------------------
+#endregion
+
+#region Example
 
 internal static class DecoratorsExample
 {
@@ -105,3 +113,5 @@ internal static class DecoratorsExample
 		Console.WriteLine();
 	}
 }
+
+#endregion

@@ -3,11 +3,13 @@ using KatzuoOgust.Cqrs.Pipeline.Middlewares;
 
 namespace KatzuoOgust.Cqrs.Examples.Middlewares;
 
-// ----- Domain -------------------------------------------------------
+#region Domain
 
 public record ShipOrderCommand(Guid OrderId, string Destination) : ICommand;
 
-// ----- Handler ------------------------------------------------------
+#endregion
+
+#region Handler
 
 internal sealed class ShipOrderHandler : ICommandHandler<ShipOrderCommand>
 {
@@ -18,7 +20,9 @@ internal sealed class ShipOrderHandler : ICommandHandler<ShipOrderCommand>
 	}
 }
 
-// ----- Typed middlewares — bound to (ShipOrderCommand, Unit) --------
+#endregion
+
+#region Typed middlewares — bound to (ShipOrderCommand, Unit)
 //
 // IRequestMiddleware<TRequest, TResult> sees the exact request type and result type.
 // Can short-circuit by returning a value without calling next.
@@ -52,7 +56,9 @@ internal sealed class ShipOrderValidationMiddleware : IRequestMiddleware<ShipOrd
 	}
 }
 
-// ----- Example ------------------------------------------------------
+#endregion
+
+#region Example
 
 internal static class MiddlewaresExample
 {
@@ -80,3 +86,5 @@ internal static class MiddlewaresExample
 		Console.WriteLine();
 	}
 }
+
+#endregion

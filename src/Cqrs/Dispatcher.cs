@@ -40,9 +40,7 @@ public sealed class Dispatcher : IDispatcher, ICommandQueue
 		where TCommand : ICommand =>
 		InvokeAsync(command, cancellationToken);
 
-	// -----------------------------------------------------------------------
-	// Factory
-	// -----------------------------------------------------------------------
+	#region Factory
 
 	/// <summary>
 	/// Creates a compiled delegate for the given request/result type pair.
@@ -79,9 +77,9 @@ public sealed class Dispatcher : IDispatcher, ICommandQueue
 	private static async Task<object?> BoxAsync<T>(Task<T> task) =>
 		await task.ConfigureAwait(false);
 
-	// -----------------------------------------------------------------------
-	// RequestProcessor — static fields + static InvokeAsync; no instances needed
-	// -----------------------------------------------------------------------
+	#endregion
+
+	#region RequestProcessor — static fields + static InvokeAsync; no instances needed
 
 	private sealed class RequestProcessor<TRequest, TResult>
 		where TRequest : IRequest<TResult>
@@ -124,4 +122,6 @@ public sealed class Dispatcher : IDispatcher, ICommandQueue
 			return (TResult)(object)Unit.Value;
 		}
 	}
+
+	#endregion
 }

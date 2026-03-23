@@ -4,9 +4,7 @@ namespace KatzuoOgust.Cqrs;
 
 public sealed partial class DispatcherTests
 {
-	// -----------------------------------------------------------------------
-	// Tests
-	// -----------------------------------------------------------------------
+	#region InvokeAsync
 
 	[Fact]
 	public async Task InvokeAsync_ReturnsUnitAndInvokesHandler_WhenVoidCommand()
@@ -93,9 +91,9 @@ public sealed partial class DispatcherTests
 		Assert.Equal(cts.Token, captured);
 	}
 
-	// -----------------------------------------------------------------------
-	// ICommandQueue
-	// -----------------------------------------------------------------------
+	#endregion
+
+	#region ICommandQueue.EnqueueAsync
 
 	[Fact]
 	public async Task EnqueueAsync_InvokesHandler_WhenVoidCommand()
@@ -127,4 +125,6 @@ public sealed partial class DispatcherTests
 	{
 		Assert.IsAssignableFrom<ICommandQueue>(new Dispatcher(new SimpleServiceProvider()));
 	}
+
+	#endregion
 }

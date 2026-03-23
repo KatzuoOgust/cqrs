@@ -2,17 +2,15 @@ namespace KatzuoOgust.Cqrs.DependencyInjection.Decoration;
 
 public sealed partial class DecoratingServiceProviderTests
 {
-	// -----------------------------------------------------------------------
-	// Construction
-	// -----------------------------------------------------------------------
+	#region Construction
 
 	[Fact]
 	public void Ctor_ThrowsArgumentNullException_WhenInnerIsNull() =>
 		Assert.Throws<ArgumentNullException>(() => new DecoratingServiceProvider(null!));
 
-	// -----------------------------------------------------------------------
-	// Exact decorator
-	// -----------------------------------------------------------------------
+	#endregion
+
+	#region Exact decorator
 
 	[Fact]
 	public void GetService_ReturnsInnerService_WhenNoDecoratorsRegistered()
@@ -69,9 +67,9 @@ public sealed partial class DecoratingServiceProviderTests
 			new DecoratingServiceProvider(new SimpleServiceProvider())
 				.Decorate<IFoo>(null!));
 
-	// -----------------------------------------------------------------------
-	// Open-generic decorator
-	// -----------------------------------------------------------------------
+	#endregion
+
+	#region Open-generic decorator
 
 	[Fact]
 	public void GetService_WrapsResolvedService_WhenGenericDecoratorRegistered()
@@ -122,9 +120,9 @@ public sealed partial class DecoratingServiceProviderTests
 			new DecoratingServiceProvider(new SimpleServiceProvider())
 				.Decorate(null!, (_, inner, _) => inner));
 
-	// -----------------------------------------------------------------------
-	// Multiple decorators
-	// -----------------------------------------------------------------------
+	#endregion
+
+	#region Multiple decorators
 
 	[Fact]
 	public void GetService_AppliesDecoratorsInnermostFirst_WhenMultipleExactDecoratorsRegistered()
@@ -179,9 +177,9 @@ public sealed partial class DecoratingServiceProviderTests
 		Assert.Equal(["exact", "generic"], order);
 	}
 
-	// -----------------------------------------------------------------------
-	// Predicate via When
-	// -----------------------------------------------------------------------
+	#endregion
+
+	#region Predicate via When
 
 	[Fact]
 	public void When_AppliesDecorator_WhenPredicateReturnsTrue()
@@ -266,9 +264,9 @@ public sealed partial class DecoratingServiceProviderTests
 		Assert.IsType<Bar<string>>(dsp.GetService(typeof(IBar<string>)));
 	}
 
-	// -----------------------------------------------------------------------
-	// Decorate<TDecorator>() — inferred service type
-	// -----------------------------------------------------------------------
+	#endregion
+
+	#region Decorate<TDecorator>() — inferred service type
 
 	[Fact]
 	public void GetService_WrapsResolvedService_WhenServiceTypeInferred()
@@ -312,9 +310,9 @@ public sealed partial class DecoratingServiceProviderTests
 		Assert.Throws<InvalidOperationException>(() => dsp.GetService(typeof(IBar<int>)));
 	}
 
-	// -----------------------------------------------------------------------
-	// Decorate<TService, TDecorator>() — explicit types
-	// -----------------------------------------------------------------------
+	#endregion
+
+	#region Decorate<TService, TDecorator>() — explicit types
 
 	[Fact]
 	public void GetService_WrapsResolvedService_WhenExplicitServiceAndDecoratorTypes()
@@ -357,9 +355,9 @@ public sealed partial class DecoratingServiceProviderTests
 		Assert.Equal("a+x", result!.Name);
 	}
 
-	// -----------------------------------------------------------------------
-	// Decorate(Type, Type) — open-generic type-based
-	// -----------------------------------------------------------------------
+	#endregion
+
+	#region Decorate(Type, Type) — open-generic type-based
 
 	[Fact]
 	public void GetService_WrapsResolvedService_WhenOpenGenericDecoratorType()
@@ -388,4 +386,6 @@ public sealed partial class DecoratingServiceProviderTests
 		Assert.IsType<WrappedBar<int>>(r1);
 		Assert.IsType<WrappedBar<int>>(r2);
 	}
+
+	#endregion
 }

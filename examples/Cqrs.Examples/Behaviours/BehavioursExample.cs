@@ -4,13 +4,15 @@ using KatzuoOgust.Cqrs.Pipeline.Middlewares;
 
 namespace KatzuoOgust.Cqrs.Examples.Behaviours;
 
-// ----- Domain -------------------------------------------------------
+#region Domain
 
 public record CreateProductCommand(string Name, decimal Price) : ICommand;
 public record GetProductQuery(Guid Id) : IQuery<ProductDto>;
 public record ProductDto(Guid Id, string Name, decimal Price);
 
-// ----- Handlers -----------------------------------------------------
+#endregion
+
+#region Handlers
 
 internal sealed class CreateProductHandler : ICommandHandler<CreateProductCommand>
 {
@@ -30,7 +32,9 @@ internal sealed class GetProductHandler : IQueryHandler<GetProductQuery, Product
 	}
 }
 
-// ----- Non-generic behaviours — apply to every request --------------
+#endregion
+
+#region Non-generic behaviours — apply to every request
 //
 // IRequestPipelineBehaviour sees only IRequest (not the concrete type)
 // and Task<object?> as the result. Use for truly cross-cutting concerns.
@@ -61,7 +65,9 @@ internal sealed class ValidationBehaviour : IRequestPipelineBehaviour
 	}
 }
 
-// ----- Typed middleware — CreateProductCommand only -----------------
+#endregion
+
+#region Typed middleware — CreateProductCommand only
 //
 // Sees the concrete request type and Unit result; applied inside behaviours.
 
@@ -80,7 +86,9 @@ internal sealed class ProductPriceMiddleware : IRequestMiddleware<CreateProductC
 	}
 }
 
-// ----- Example ------------------------------------------------------
+#endregion
+
+#region Example
 
 internal static class BehavioursExample
 {
@@ -117,3 +125,5 @@ internal static class BehavioursExample
 		Console.WriteLine();
 	}
 }
+
+#endregion
