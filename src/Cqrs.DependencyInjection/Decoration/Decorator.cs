@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace KatzuoOgust.Cqrs.DependencyInjection.Decoration;
 
@@ -67,45 +68,73 @@ public abstract partial class Decorator
 	/// </summary>
 	internal static Func<object, IServiceProvider, object> BuildCtorInvoker(Type serviceType, Type decoratorType)
 	{
-		var svcParam = Expression.Parameter(typeof(object), "svc");
-		var spParam  = Expression.Parameter(typeof(IServiceProvider), "sp");
-		var castSvc  = Expression.Convert(svcParam, serviceType);
-
 		// Strategy 1: ctor(serviceType, IServiceProvider)
 		var ctor2 = decoratorType.GetConstructor([serviceType, typeof(IServiceProvider)]);
 		if (ctor2 is not null)
 		{
-			var body = Expression.Convert(Expression.New(ctor2, castSvc, spParam), typeof(object));
-			return Expression.Lambda<Func<object, IServiceProvider, object>>(body, svcParam, spParam).Compile();
+			return CompileStrategy1(serviceType, ctor2);
 		}
 
 		// Strategy 2: ctor(serviceType)
 		var ctor1 = decoratorType.GetConstructor([serviceType]);
 		if (ctor1 is not null)
 		{
-			var body = Expression.Convert(Expression.New(ctor1, castSvc), typeof(object));
-			return Expression.Lambda<Func<object, IServiceProvider, object>>(body, svcParam, spParam).Compile();
+			return CompileStrategy2(serviceType, ctor1);
 		}
 
 		// Strategy 3: ctor(serviceType, p2, p3, …) — extra params resolved from sp at call time
-		var getService = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService))!;
 		foreach (var ctor in decoratorType.GetConstructors())
 		{
 			var parameters = ctor.GetParameters();
 			if (parameters.Length < 2) continue;
-			if (!parameters[0].ParameterType.IsAssignableFrom(serviceType)) continue;
+			if (parameters[0].ParameterType.IsAssignableFrom(serviceType))
+			{
+				return CompileStrategy3(serviceType, ctor, parameters);
+			}
+		}
+
+		throw Error.NoSuitableConstructor(serviceType, decoratorType);
+
+		static Func<object, IServiceProvider, object> CompileStrategy1(Type serviceType, ConstructorInfo ctor2)
+		{
+			var svcParam = Expression.Parameter(typeof(object), "svc");
+			var spParam  = Expression.Parameter(typeof(IServiceProvider), "sp");
+			var castSvc  = Expression.Convert(svcParam, serviceType);
+
+			var body = Expression.Convert(Expression.New(ctor2, castSvc, spParam), typeof(object));
+			return Expression.Lambda<Func<object, IServiceProvider, object>>(body, svcParam, spParam).Compile();
+		}
+
+		static Func<object, IServiceProvider, object> CompileStrategy2(Type serviceType, ConstructorInfo ctor1)
+		{
+			var svcParam = Expression.Parameter(typeof(object), "svc");
+			var spParam  = Expression.Parameter(typeof(IServiceProvider), "sp");
+			var castSvc  = Expression.Convert(svcParam, serviceType);
+
+			var body = Expression.Convert(Expression.New(ctor1, castSvc), typeof(object));
+			return Expression.Lambda<Func<object, IServiceProvider, object>>(body, svcParam, spParam).Compile();
+		}
+
+		static Func<object, IServiceProvider, object> CompileStrategy3(Type serviceType, ConstructorInfo ctor, ParameterInfo[] parameters)
+		{
+			var svcParam = Expression.Parameter(typeof(object), "svc");
+			var spParam  = Expression.Parameter(typeof(IServiceProvider), "sp");
+			var castSvc  = Expression.Convert(svcParam, serviceType);
+
+			var getService = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService))!;
 
 			var args = new Expression[parameters.Length];
 			args[0] = castSvc;
 			for (var i = 1; i < parameters.Length; i++)
+			{
 				args[i] = Expression.Convert(
 					Expression.Call(spParam, getService, Expression.Constant(parameters[i].ParameterType)),
-					parameters[i].ParameterType);
+					parameters[i].ParameterType
+				);
+			}
 
 			var body = Expression.Convert(Expression.New(ctor, args), typeof(object));
 			return Expression.Lambda<Func<object, IServiceProvider, object>>(body, svcParam, spParam).Compile();
 		}
-
-		throw Error.NoSuitableConstructor(serviceType, decoratorType);
 	}
 }
