@@ -3,6 +3,7 @@
     <Project Path="src/Cqrs/Cqrs.csproj" />
     <Project Path="src/Cqrs.Pipeline.Middlewares/Cqrs.Pipeline.Middlewares.csproj" />
     <Project Path="src/Cqrs.Pipeline.Behaviours/Cqrs.Pipeline.Behaviours.csproj" />
+    <Project Path="src/Cqrs.DependencyInjection/Cqrs.DependencyInjection.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Cqrs.Tests/Cqrs.Tests.csproj" />

@@ -1,4 +1,3 @@
-using KatzuoOgust.Cqrs;
 namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 
 public sealed class BehaviourAwareDispatcherTests

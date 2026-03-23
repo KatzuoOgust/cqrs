@@ -61,5 +61,6 @@ Strip `.Tests`, `.Core`, `.Abstractions` when deriving `RootNamespace`; keep all
 | `Cqrs.Abstractions` | `KatzuoOgust.Cqrs` |
 | `Cqrs.Pipeline.Middlewares` | `KatzuoOgust.Cqrs.Pipeline.Middlewares` |
 | `Cqrs.Pipeline.Behaviours` | `KatzuoOgust.Cqrs.Pipeline.Behaviours` |
+| `Cqrs.DependencyInjection` | `KatzuoOgust.Cqrs.DependencyInjection` |
 
 Add `using KatzuoOgust.Cqrs;` in any file under `Cqrs.Pipeline.*` that references core types.
