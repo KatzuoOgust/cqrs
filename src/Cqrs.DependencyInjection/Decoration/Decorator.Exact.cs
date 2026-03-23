@@ -10,6 +10,7 @@ public abstract partial class Decorator
 		where TService : class
 	{
 		ArgumentNullException.ThrowIfNull(factory);
+
 		return new ExactDecorator<TService>(factory);
 	}
 

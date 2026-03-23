@@ -1,37 +1,7 @@
 namespace KatzuoOgust.Cqrs;
 
-public sealed class EventDispatcherTests
+public sealed partial class EventDispatcherTests
 {
-	// -----------------------------------------------------------------------
-	// Test fixtures
-	// -----------------------------------------------------------------------
-
-	private sealed record UserCreatedEvent(string Name) : IEvent;
-
-	private sealed class TrackingHandler : IEventHandler<UserCreatedEvent>
-	{
-		public List<UserCreatedEvent> Received { get; } = [];
-		public CancellationToken LastToken { get; private set; }
-
-		public Task HandleAsync(UserCreatedEvent @event, CancellationToken cancellationToken = default)
-		{
-			Received.Add(@event);
-			LastToken = cancellationToken;
-			return Task.CompletedTask;
-		}
-	}
-
-	private sealed class SimpleServiceProvider : IServiceProvider
-	{
-		private readonly Dictionary<Type, object> _services = [];
-
-		public void Register<TService>(TService impl) where TService : class =>
-			_services[typeof(TService)] = impl;
-
-		public object? GetService(Type serviceType) =>
-			_services.GetValueOrDefault(serviceType);
-	}
-
 	// -----------------------------------------------------------------------
 	// Tests
 	// -----------------------------------------------------------------------

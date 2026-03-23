@@ -1,48 +1,7 @@
 namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 
-public sealed class BehaviourAwareDispatcherTests
+public sealed partial class BehaviourAwareDispatcherTests
 {
-	// -----------------------------------------------------------------------
-	// Fixtures
-	// -----------------------------------------------------------------------
-
-	private sealed record AddCommand(int A, int B) : ICommand<int>;
-	private sealed record PingCommand : ICommand;
-
-	private sealed class AddHandler : ICommandHandler<AddCommand, int>
-	{
-		public Task<int> HandleAsync(AddCommand command, CancellationToken ct = default) =>
-			Task.FromResult(command.A + command.B);
-	}
-
-	private sealed class PingHandler : ICommandHandler<PingCommand>
-	{
-		public bool Invoked { get; private set; }
-		public Task HandleAsync(PingCommand command, CancellationToken ct = default)
-		{
-			Invoked = true;
-			return Task.CompletedTask;
-		}
-	}
-
-	private sealed class LoggingBehaviour(List<string> log, string name) : IRequestPipelineBehaviour
-	{
-		public async Task<object?> HandleAsync(IRequest request, CancellationToken ct, Func<CancellationToken, Task<object?>> next)
-		{
-			log.Add($"{name}:before");
-			var result = await next(ct);
-			log.Add($"{name}:after");
-			return result;
-		}
-	}
-
-	private sealed class SimpleServiceProvider : IServiceProvider
-	{
-		private readonly Dictionary<Type, object> _services = [];
-		public void Register<T>(T impl) where T : class => _services[typeof(T)] = impl;
-		public object? GetService(Type t) => _services.GetValueOrDefault(t);
-	}
-
 	// -----------------------------------------------------------------------
 	// Tests
 	// -----------------------------------------------------------------------
@@ -124,12 +83,4 @@ public sealed class BehaviourAwareDispatcherTests
 				.InvokeAsync<Unit>(null!));
 	}
 
-	private sealed class CapturingBehaviour(Action<IRequest> capture) : IRequestPipelineBehaviour
-	{
-		public async Task<object?> HandleAsync(IRequest request, CancellationToken ct, Func<CancellationToken, Task<object?>> next)
-		{
-			capture(request);
-			return await next(ct);
-		}
-	}
 }

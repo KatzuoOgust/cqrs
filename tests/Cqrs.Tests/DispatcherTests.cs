@@ -1,49 +1,7 @@
 namespace KatzuoOgust.Cqrs;
 
-public sealed class DispatcherTests
+public sealed partial class DispatcherTests
 {
-	// -----------------------------------------------------------------------
-	// Test fixtures
-	// -----------------------------------------------------------------------
-
-	private sealed record PingCommand : ICommand;
-	private sealed record EchoCommand(string Text) : ICommand<string>;
-	private sealed record LengthQuery(string Text) : IQuery<int>;
-
-	private sealed class PingHandler : ICommandHandler<PingCommand>
-	{
-		public bool Invoked { get; private set; }
-
-		public Task HandleAsync(PingCommand command, CancellationToken cancellationToken = default)
-		{
-			Invoked = true;
-			return Task.CompletedTask;
-		}
-	}
-
-	private sealed class EchoHandler : ICommandHandler<EchoCommand, string>
-	{
-		public Task<string> HandleAsync(EchoCommand command, CancellationToken cancellationToken = default) =>
-			Task.FromResult(command.Text);
-	}
-
-	private sealed class LengthHandler : IQueryHandler<LengthQuery, int>
-	{
-		public Task<int> HandleAsync(LengthQuery query, CancellationToken cancellationToken = default) =>
-			Task.FromResult(query.Text.Length);
-	}
-
-	private sealed class SimpleServiceProvider : IServiceProvider
-	{
-		private readonly Dictionary<Type, object> _services = [];
-
-		public void Register<TService>(TService impl) where TService : class =>
-			_services[typeof(TService)] = impl;
-
-		public object? GetService(Type serviceType) =>
-			_services.GetValueOrDefault(serviceType);
-	}
-
 	// -----------------------------------------------------------------------
 	// Tests
 	// -----------------------------------------------------------------------
@@ -131,15 +89,6 @@ public sealed class DispatcherTests
 		await new Dispatcher(sp).InvokeAsync(new PingCommand(), cts.Token);
 
 		Assert.Equal(cts.Token, captured);
-	}
-
-	private sealed class CapturingHandler(Action<CancellationToken> capture) : ICommandHandler<PingCommand>
-	{
-		public Task HandleAsync(PingCommand command, CancellationToken cancellationToken = default)
-		{
-			capture(cancellationToken);
-			return Task.CompletedTask;
-		}
 	}
 
 	// -----------------------------------------------------------------------
