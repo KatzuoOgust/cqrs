@@ -17,8 +17,9 @@ public abstract partial class Decorator
 		}
 
 		internal static InvalidOperationException NoSuitableConstructor(Type serviceType, Type decoratorType) =>
-			new($"'{decoratorType}' has no constructor accepting '{serviceType}' " +
-				$"(with or without a trailing IServiceProvider parameter).");
+			new($"'{decoratorType}' has no suitable constructor for service type '{serviceType}'. " +
+				$"Accepted forms: ctor({serviceType}), ctor({serviceType}, IServiceProvider), " +
+				$"or ctor({serviceType}, p2, p3, …) where additional parameters are resolved from IServiceProvider.");
 
 		internal static InvalidOperationException CannotInferServiceType(Type decoratorType) =>
 			new($"Cannot infer service type for '{decoratorType}'. " +

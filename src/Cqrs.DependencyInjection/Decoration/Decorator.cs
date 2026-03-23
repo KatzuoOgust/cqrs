@@ -53,10 +53,17 @@ public abstract partial class Decorator
 	}
 
 	/// <summary>
-	/// Compiles a <c>Func&lt;object, IServiceProvider, object&gt;</c> that calls
-	/// <c>new decoratorType(service, sp)</c> or <c>new decoratorType(service)</c>, preferring the
-	/// two-parameter overload. The lambda is compiled once at registration time (fail-fast) and
-	/// reused on every resolve — no <c>MethodBase.Invoke</c> or array allocation at call time.
+	/// Compiles a <c>Func&lt;object, IServiceProvider, object&gt;</c> that instantiates
+	/// <paramref name="decoratorType"/> by injecting the inner service and resolving any
+	/// additional constructor parameters from <see cref="IServiceProvider"/>. Three constructor
+	/// forms are tried in order:
+	/// <list type="number">
+	///   <item><c>new decoratorType(service, IServiceProvider)</c></item>
+	///   <item><c>new decoratorType(service)</c></item>
+	///   <item><c>new decoratorType(service, p2, p3, …)</c> — extra params resolved via <c>sp.GetService</c></item>
+	/// </list>
+	/// The lambda is compiled once at registration time (fail-fast) and reused on every resolve —
+	/// no <c>MethodBase.Invoke</c> or array allocation at call time.
 	/// </summary>
 	internal static Func<object, IServiceProvider, object> BuildCtorInvoker(Type serviceType, Type decoratorType)
 	{
@@ -64,6 +71,7 @@ public abstract partial class Decorator
 		var spParam  = Expression.Parameter(typeof(IServiceProvider), "sp");
 		var castSvc  = Expression.Convert(svcParam, serviceType);
 
+		// Strategy 1: ctor(serviceType, IServiceProvider)
 		var ctor2 = decoratorType.GetConstructor([serviceType, typeof(IServiceProvider)]);
 		if (ctor2 is not null)
 		{
@@ -71,10 +79,30 @@ public abstract partial class Decorator
 			return Expression.Lambda<Func<object, IServiceProvider, object>>(body, svcParam, spParam).Compile();
 		}
 
+		// Strategy 2: ctor(serviceType)
 		var ctor1 = decoratorType.GetConstructor([serviceType]);
 		if (ctor1 is not null)
 		{
 			var body = Expression.Convert(Expression.New(ctor1, castSvc), typeof(object));
+			return Expression.Lambda<Func<object, IServiceProvider, object>>(body, svcParam, spParam).Compile();
+		}
+
+		// Strategy 3: ctor(serviceType, p2, p3, …) — extra params resolved from sp at call time
+		var getService = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService))!;
+		foreach (var ctor in decoratorType.GetConstructors())
+		{
+			var parameters = ctor.GetParameters();
+			if (parameters.Length < 2) continue;
+			if (!parameters[0].ParameterType.IsAssignableFrom(serviceType)) continue;
+
+			var args = new Expression[parameters.Length];
+			args[0] = castSvc;
+			for (var i = 1; i < parameters.Length; i++)
+				args[i] = Expression.Convert(
+					Expression.Call(spParam, getService, Expression.Constant(parameters[i].ParameterType)),
+					parameters[i].ParameterType);
+
+			var body = Expression.Convert(Expression.New(ctor, args), typeof(object));
 			return Expression.Lambda<Func<object, IServiceProvider, object>>(body, svcParam, spParam).Compile();
 		}
 

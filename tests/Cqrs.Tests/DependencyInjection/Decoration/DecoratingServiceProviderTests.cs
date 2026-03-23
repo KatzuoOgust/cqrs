@@ -8,6 +8,7 @@ public sealed class DecoratingServiceProviderTests
 
 	private interface IFoo { string Name { get; } }
 	private interface IBar<T> { T Value { get; } }
+	private interface IDep { string Value { get; } }
 
 	private sealed class Foo(string name) : IFoo { public string Name => name; }
 	private sealed class WrappedFoo(IFoo inner) : IFoo { public string Name => $"wrapped({inner.Name})"; }
@@ -16,8 +17,13 @@ public sealed class DecoratingServiceProviderTests
 		public string Name => inner.Name;
 		public IServiceProvider CapturedSp => sp;
 	}
+	private sealed class FooWithDep(IFoo inner, IDep dep) : IFoo
+	{
+		public string Name => $"{inner.Name}+{dep.Value}";
+	}
 	private sealed class NoServiceCtorDecorator(string x) : IFoo { public string Name => x; }
 
+	private sealed class Dep(string value) : IDep { public string Value => value; }
 	private sealed class Bar<T>(T value) : IBar<T> { public T Value => value; }
 	private sealed class WrappedBar<T>(IBar<T> inner) : IBar<T> { public T Value => inner.Value; }
 
@@ -347,6 +353,20 @@ public sealed class DecoratingServiceProviderTests
 		var result = (SpCapturingFoo?)dsp.GetService(typeof(IFoo));
 
 		Assert.Same(dsp, result!.CapturedSp);
+	}
+
+	[Fact]
+	public void GetService_WrapsResolvedService_WhenDecoratorHasAdditionalDependencies()
+	{
+		var sp = new SimpleServiceProvider();
+		sp.Register<IFoo>(new Foo("a"));
+		sp.Register<IDep>(new Dep("x"));
+
+		var result = (IFoo?)new DecoratingServiceProvider(sp)
+			.Decorate<IFoo, FooWithDep>()
+			.GetService(typeof(IFoo));
+
+		Assert.Equal("a+x", result!.Name);
 	}
 
 	// -----------------------------------------------------------------------
