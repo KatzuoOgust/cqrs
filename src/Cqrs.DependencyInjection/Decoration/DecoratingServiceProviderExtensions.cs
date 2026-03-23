@@ -30,7 +30,7 @@ public static class DecoratingServiceProviderExtensions
 		ArgumentNullException.ThrowIfNull(provider);
 
 		var decoratorType = typeof(TDecorator);
-		provider.Add(Decorator.Exact(Decorator.InferServiceTypeFromCtors(decoratorType), decoratorType));
+		provider.Add(Decorator.Exact(Decorator.InferServiceType(decoratorType), decoratorType));
 		return provider;
 	}
 

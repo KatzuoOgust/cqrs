@@ -41,7 +41,7 @@ public abstract partial class Decorator
 	/// parameter whose type is an interface or base class that <paramref name="decoratorType"/> implements.
 	/// Throws <see cref="InvalidOperationException"/> when no such constructor exists.
 	/// </summary>
-	internal static Type InferServiceTypeFromCtors(Type decoratorType)
+	internal static Type InferServiceType(Type decoratorType)
 	{
 		foreach (var ctor in decoratorType.GetConstructors())
 		{
@@ -68,6 +68,8 @@ public abstract partial class Decorator
 	/// </summary>
 	internal static Func<object, IServiceProvider, object> BuildCtorInvoker(Type serviceType, Type decoratorType)
 	{
+		Error.ThrowIfDecoratorDoesNotImplementService(serviceType, decoratorType);
+
 		// Strategy 1: ctor(serviceType, IServiceProvider)
 		var ctor2 = decoratorType.GetConstructor([serviceType, typeof(IServiceProvider)]);
 		if (ctor2 is not null)

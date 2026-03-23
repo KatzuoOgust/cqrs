@@ -21,11 +21,13 @@ public sealed class DecoratingServiceProviderTests
 	{
 		public string Name => $"{inner.Name}+{dep.Value}";
 	}
+	private sealed class NotAFooDecorator(IFoo inner) { public string Name => inner.Name; }
 	private sealed class NoServiceCtorDecorator(string x) : IFoo { public string Name => x; }
 
 	private sealed class Dep(string value) : IDep { public string Value => value; }
 	private sealed class Bar<T>(T value) : IBar<T> { public T Value => value; }
 	private sealed class WrappedBar<T>(IBar<T> inner) : IBar<T> { public T Value => inner.Value; }
+	private sealed class BadBarDecorator<T>(IBar<T> inner) { }
 
 	private sealed class SimpleServiceProvider : IServiceProvider
 	{
@@ -322,6 +324,27 @@ public sealed class DecoratingServiceProviderTests
 		Assert.Throws<InvalidOperationException>(() =>
 			new DecoratingServiceProvider(new SimpleServiceProvider())
 				.Decorate<NoServiceCtorDecorator>());
+	}
+
+	[Fact]
+	public void GetService_ThrowsInvalidOperationException_WhenDecoratorDoesNotImplementService()
+	{
+		// Exact path: thrown at Decorator.Exact() call (registration time)
+		Assert.Throws<InvalidOperationException>(() =>
+			Decorator.Exact(typeof(IFoo), typeof(NotAFooDecorator)));
+	}
+
+	[Fact]
+	public void GetService_ThrowsInvalidOperationException_WhenOpenGenericDecoratorDoesNotImplementService()
+	{
+		// Open-generic path: thrown at GetService (first resolve, when the closed type is built)
+		var sp = new SimpleServiceProvider();
+		sp.Register<IBar<int>>(new Bar<int>(1));
+
+		var dsp = new DecoratingServiceProvider(sp)
+			.Decorate(typeof(IBar<>), typeof(BadBarDecorator<>));
+
+		Assert.Throws<InvalidOperationException>(() => dsp.GetService(typeof(IBar<int>)));
 	}
 
 	// -----------------------------------------------------------------------

@@ -16,6 +16,13 @@ public abstract partial class Decorator
 					paramName);
 		}
 
+		internal static void ThrowIfDecoratorDoesNotImplementService(Type serviceType, Type decoratorType)
+		{
+			if (!serviceType.IsAssignableFrom(decoratorType))
+				throw new InvalidOperationException(
+					$"'{decoratorType}' does not implement or extend '{serviceType}' and cannot be used as its decorator.");
+		}
+
 		internal static InvalidOperationException NoSuitableConstructor(Type serviceType, Type decoratorType) =>
 			new($"'{decoratorType}' has no suitable constructor for service type '{serviceType}'. " +
 				$"Accepted forms: ctor({serviceType}), ctor({serviceType}, IServiceProvider), " +
