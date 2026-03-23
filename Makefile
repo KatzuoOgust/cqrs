@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help build test
+.PHONY: help build test pack clean
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -11,3 +11,10 @@ build: ## Build the solution
 
 test: ## Run all tests
 	dotnet test Cqrs.slnx --logger "console;verbosity=normal"
+
+pack: ## Pack NuGet packages to ./artifacts/nupkgs
+	dotnet pack Cqrs.slnx -c Release --output ./artifacts/nupkgs
+
+clean: ## Remove build artefacts (bin/obj/artifacts)
+	dotnet clean Cqrs.slnx
+	rm -rf artifacts

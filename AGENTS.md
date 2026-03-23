@@ -7,6 +7,7 @@ Always build and test before and after making changes:
 ```sh
 make build   # dotnet build Cqrs.slnx
 make test    # dotnet test Cqrs.slnx
+make pack    # dotnet pack → ./artifacts/nupkgs (local smoke-check only)
 
 # Run a single test class:
 dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTests"
