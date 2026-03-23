@@ -38,26 +38,26 @@ public sealed class MiddlewareEventDispatcherTests
 		public object? GetService(Type t) => _services.GetValueOrDefault(t);
 	}
 
-	private static IEventBus MakeBus(IServiceProvider sp) => new EventDispatcher(sp);
+	private static IEventDispatcher MakeDispatcher(IServiceProvider sp) => new EventDispatcher(sp);
 
 	// -----------------------------------------------------------------------
 	// Tests
 	// -----------------------------------------------------------------------
 
 	[Fact]
-	public async Task PublishAsync_NoMiddlewares_PassesThroughToInner()
+	public async Task DispatchAsync_NoMiddlewares_PassesThroughToInner()
 	{
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();
 		sp.Register<IEnumerable<IEventHandler<OrderPlacedEvent>>>([handler]);
 
-		await new MiddlewareEventDispatcher(MakeBus(sp), sp).PublishAsync(new OrderPlacedEvent(1));
+		await new MiddlewareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderPlacedEvent(1));
 
 		Assert.Equal([1], handler.Received);
 	}
 
 	[Fact]
-	public async Task PublishAsync_SingleMiddleware_WrapsHandler()
+	public async Task DispatchAsync_SingleMiddleware_WrapsHandler()
 	{
 		var log = new List<string>();
 		var handler = new TrackingHandler();
@@ -65,14 +65,14 @@ public sealed class MiddlewareEventDispatcherTests
 		sp.Register<IEnumerable<IEventHandler<OrderPlacedEvent>>>([handler]);
 		sp.Register<IEnumerable<IEventMiddleware<OrderPlacedEvent>>>([new LoggingMiddleware(log, "m")]);
 
-		await new MiddlewareEventDispatcher(MakeBus(sp), sp).PublishAsync(new OrderPlacedEvent(42));
+		await new MiddlewareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderPlacedEvent(42));
 
 		Assert.Equal([42], handler.Received);
 		Assert.Equal(["m:before", "m:after"], log);
 	}
 
 	[Fact]
-	public async Task PublishAsync_MultipleMiddlewares_ChainedOutermostFirst()
+	public async Task DispatchAsync_MultipleMiddlewares_ChainedOutermostFirst()
 	{
 		var log = new List<string>();
 		var sp = new SimpleServiceProvider();
@@ -82,29 +82,29 @@ public sealed class MiddlewareEventDispatcherTests
 			new LoggingMiddleware(log, "m1"),
 		]);
 
-		await new MiddlewareEventDispatcher(MakeBus(sp), sp).PublishAsync(new OrderPlacedEvent(1));
+		await new MiddlewareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderPlacedEvent(1));
 
 		Assert.Equal(["m0:before", "m1:before", "m1:after", "m0:after"], log);
 	}
 
 	[Fact]
-	public async Task PublishAsync_NullEvent_ThrowsArgumentNullException()
+	public async Task DispatchAsync_NullEvent_ThrowsArgumentNullException()
 	{
 		await Assert.ThrowsAsync<ArgumentNullException>(
-			() => new MiddlewareEventDispatcher(MakeBus(new SimpleServiceProvider()), new SimpleServiceProvider())
-				.PublishAsync<OrderPlacedEvent>(null!));
+			() => new MiddlewareEventDispatcher(MakeDispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())
+				.DispatchAsync<OrderPlacedEvent>(null!));
 	}
 
 	[Fact]
-	public async Task PublishAsync_CalledMultipleTimes_UsesCachedInvoker()
+	public async Task DispatchAsync_CalledMultipleTimes_UsesCachedInvoker()
 	{
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();
 		sp.Register<IEnumerable<IEventHandler<OrderPlacedEvent>>>([handler]);
-		var dispatcher = new MiddlewareEventDispatcher(MakeBus(sp), sp);
+		var dispatcher = new MiddlewareEventDispatcher(MakeDispatcher(sp), sp);
 
-		await dispatcher.PublishAsync(new OrderPlacedEvent(1));
-		await dispatcher.PublishAsync(new OrderPlacedEvent(2));
+		await dispatcher.DispatchAsync(new OrderPlacedEvent(1));
+		await dispatcher.DispatchAsync(new OrderPlacedEvent(2));
 
 		Assert.Equal([1, 2], handler.Received);
 	}

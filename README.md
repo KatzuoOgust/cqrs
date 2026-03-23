@@ -45,7 +45,7 @@ Typed middleware — each middleware is bound to a specific `(TRequest, TResult)
 | `IRequestMiddleware<TRequest, TResult>` | Wraps a single request type; `next` returns `Task<TResult>` |
 | `IEventMiddleware<TEvent>` | Wraps a single event type |
 | `MiddlewareDispatcher` | `IDispatcher` decorator applying `IRequestMiddleware` chain |
-| `MiddlewareEventDispatcher` | `IEventBus` decorator applying `IEventMiddleware` chain |
+| `MiddlewareEventDispatcher` | `IEventDispatcher` decorator applying `IEventMiddleware` chain |
 
 ## Pipelines (`Cqrs.Pipelines`)
 
@@ -56,7 +56,7 @@ Non-generic cross-cutting behaviours — apply to every request or event regardl
 | `IRequestPipelineBehaviour` | Applied to all requests; `next` returns `Task<object?>` |
 | `IEventPipelineBehaviour` | Applied to all events |
 | `PipelineDispatcher` | `IDispatcher` decorator applying `IRequestPipelineBehaviour` chain |
-| `PipelineEventDispatcher` | `IEventBus` decorator applying `IEventPipelineBehaviour` chain |
+| `PipelineEventDispatcher` | `IEventDispatcher` decorator applying `IEventPipelineBehaviour` chain |
 
 ## Usage
 

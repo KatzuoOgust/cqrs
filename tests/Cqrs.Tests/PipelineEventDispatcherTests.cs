@@ -35,22 +35,22 @@ public sealed class PipelineEventDispatcherTests
 		public object? GetService(Type t) => _services.GetValueOrDefault(t);
 	}
 
-	private static IEventBus MakeBus(IServiceProvider sp) => new EventDispatcher(sp);
+	private static IEventDispatcher MakeDispatcher(IServiceProvider sp) => new EventDispatcher(sp);
 
 	[Fact]
-	public async Task PublishAsync_NoBehaviours_PassesThroughToHandler()
+	public async Task DispatchAsync_NoBehaviours_PassesThroughToHandler()
 	{
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();
 		sp.Register<IEnumerable<IEventHandler<OrderShippedEvent>>>([handler]);
 
-		await new PipelineEventDispatcher(MakeBus(sp), sp).PublishAsync(new OrderShippedEvent(1));
+		await new PipelineEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderShippedEvent(1));
 
 		Assert.Equal([1], handler.Received);
 	}
 
 	[Fact]
-	public async Task PublishAsync_SingleBehaviour_WrapsPublication()
+	public async Task DispatchAsync_SingleBehaviour_WrapsPublication()
 	{
 		var log = new List<string>();
 		var handler = new TrackingHandler();
@@ -58,14 +58,14 @@ public sealed class PipelineEventDispatcherTests
 		sp.Register<IEnumerable<IEventHandler<OrderShippedEvent>>>([handler]);
 		sp.Register<IEnumerable<IEventPipelineBehaviour>>([new LoggingBehaviour(log, "b")]);
 
-		await new PipelineEventDispatcher(MakeBus(sp), sp).PublishAsync(new OrderShippedEvent(42));
+		await new PipelineEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderShippedEvent(42));
 
 		Assert.Equal([42], handler.Received);
 		Assert.Equal(["b:before", "b:after"], log);
 	}
 
 	[Fact]
-	public async Task PublishAsync_MultipleBehaviours_ChainedOutermostFirst()
+	public async Task DispatchAsync_MultipleBehaviours_ChainedOutermostFirst()
 	{
 		var log = new List<string>();
 		var sp = new SimpleServiceProvider();
@@ -75,13 +75,13 @@ public sealed class PipelineEventDispatcherTests
 			new LoggingBehaviour(log, "b1"),
 		]);
 
-		await new PipelineEventDispatcher(MakeBus(sp), sp).PublishAsync(new OrderShippedEvent(1));
+		await new PipelineEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderShippedEvent(1));
 
 		Assert.Equal(["b0:before", "b1:before", "b1:after", "b0:after"], log);
 	}
 
 	[Fact]
-	public async Task PublishAsync_BehaviourReceivesEvent()
+	public async Task DispatchAsync_BehaviourReceivesEvent()
 	{
 		IEvent? captured = null;
 		var sp = new SimpleServiceProvider();
@@ -89,17 +89,17 @@ public sealed class PipelineEventDispatcherTests
 		sp.Register<IEnumerable<IEventPipelineBehaviour>>([new CapturingBehaviour(e => captured = e)]);
 
 		var evt = new OrderShippedEvent(7);
-		await new PipelineEventDispatcher(MakeBus(sp), sp).PublishAsync(evt);
+		await new PipelineEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(evt);
 
 		Assert.Same(evt, captured);
 	}
 
 	[Fact]
-	public async Task PublishAsync_NullEvent_ThrowsArgumentNullException()
+	public async Task DispatchAsync_NullEvent_ThrowsArgumentNullException()
 	{
 		await Assert.ThrowsAsync<ArgumentNullException>(
-			() => new PipelineEventDispatcher(MakeBus(new SimpleServiceProvider()), new SimpleServiceProvider())
-				.PublishAsync<OrderShippedEvent>(null!));
+			() => new PipelineEventDispatcher(MakeDispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())
+				.DispatchAsync<OrderShippedEvent>(null!));
 	}
 
 	private sealed class CapturingBehaviour(Action<IEvent> capture) : IEventPipelineBehaviour

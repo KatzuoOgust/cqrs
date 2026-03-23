@@ -5,15 +5,15 @@ using System.Linq.Expressions;
 namespace KatzuoOgust.Cqrs.Middlewares;
 
 /// <summary>
-/// Wraps an <see cref="IEventBus"/> so that every published event runs through the registered
+/// Wraps an <see cref="IEventDispatcher"/> so that every dispatched event runs through the registered
 /// <see cref="IEventMiddleware{TEvent}"/> chain before reaching the actual handlers.
 /// </summary>
-public sealed class MiddlewareEventDispatcher(IEventBus inner, IServiceProvider serviceProvider) : IEventBus
+public sealed class MiddlewareEventDispatcher(IEventDispatcher inner, IServiceProvider serviceProvider) : IEventDispatcher
 {
-	private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, IEventBus, object, CancellationToken, Task>>
+	private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, IEventDispatcher, object, CancellationToken, Task>>
 		_cache = new();
 
-	public Task PublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
+	public Task DispatchAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
 		where TEvent : IEvent
 	{
 		ArgumentNullException.ThrowIfNull(@event);
@@ -22,12 +22,12 @@ public sealed class MiddlewareEventDispatcher(IEventBus inner, IServiceProvider 
 			.Invoke(serviceProvider, inner, @event, cancellationToken);
 	}
 
-	private static Func<IServiceProvider, IEventBus, object, CancellationToken, Task> BuildInvoker(Type eventType)
+	private static Func<IServiceProvider, IEventDispatcher, object, CancellationToken, Task> BuildInvoker(Type eventType)
 	{
 		var invokerType = typeof(Invoker<>).MakeGenericType(eventType);
 
 		var sp  = Expression.Parameter(typeof(IServiceProvider), "sp");
-		var bus = Expression.Parameter(typeof(IEventBus), "bus");
+		var bus = Expression.Parameter(typeof(IEventDispatcher), "bus");
 		var evt = Expression.Parameter(typeof(object), "evt");
 		var ct  = Expression.Parameter(typeof(CancellationToken), "ct");
 
@@ -36,20 +36,20 @@ public sealed class MiddlewareEventDispatcher(IEventBus inner, IServiceProvider 
 			sp, bus, Expression.Convert(evt, eventType), ct);
 
 		return Expression
-			.Lambda<Func<IServiceProvider, IEventBus, object, CancellationToken, Task>>(body, sp, bus, evt, ct)
+			.Lambda<Func<IServiceProvider, IEventDispatcher, object, CancellationToken, Task>>(body, sp, bus, evt, ct)
 			.Compile();
 	}
 
 	private static class Invoker<TEvent>
 		where TEvent : IEvent
 	{
-		public static async Task InvokeAsync(IServiceProvider sp, IEventBus inner, TEvent @event, CancellationToken ct)
+		public static async Task InvokeAsync(IServiceProvider sp, IEventDispatcher inner, TEvent @event, CancellationToken ct)
 		{
 			var middlewares = ((IEnumerable<IEventMiddleware<TEvent>>?)
 				sp.GetService(typeof(IEnumerable<IEventMiddleware<TEvent>>)) ?? [])
 				.ToArray();
 
-			Func<CancellationToken, Task> terminal = c => inner.PublishAsync(@event, c);
+			Func<CancellationToken, Task> terminal = c => inner.DispatchAsync(@event, c);
 
 			for (var i = middlewares.Length - 1; i >= 0; i--)
 			{
