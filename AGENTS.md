@@ -1,5 +1,7 @@
 # AGENTS.md — Cqrs
 
+> Contributor workflow, naming conventions, and design rules are in **[CONTRIBUTING.md](CONTRIBUTING.md)** — read it first.
+
 ## Before you start
 
 Always build and test before and after making changes:
@@ -22,13 +24,6 @@ dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTest
 | Non-generic cross-cutting behaviours | `src/Cqrs.Pipeline.Behaviours/` |
 | All tests | `tests/Cqrs.Tests/` — subdirectory mirrors the subject's namespace |
 
-## Adding a new abstraction
-
-1. Add the interface in `src/Cqrs/` with a file-scoped `namespace KatzuoOgust.Cqrs;`.
-2. If a null-object makes sense, add `Null{Name}.cs` beside it — private constructor, static `Instance` property.
-3. Place tests under `tests/Cqrs.Tests/` in the subdirectory that matches the subject's namespace.
-4. Add a row to the table in `README.md`.
-
 ## Rules — never break these
 
 - **`src/Cqrs` is abstractions only.** Do not add concrete dispatcher or bus implementations there; those belong in consumer packages.
@@ -36,18 +31,6 @@ dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTest
 - **Void commands return `Unit`.** `ICommand` inherits `IRequest<Unit>`. Do not add a void overload of `IDispatcher.InvokeAsync`.
 - **Covariant type parameters.** Keep `out TResponse` on `IRequest<out TResponse>`, `ICommand<out TResponse>`, and `IQuery<out TResponse>`.
 - **`IEventBus` fans out; `IDispatcher` routes to one.** Do not conflate the two.
-
-## Naming
-
-- Interfaces: `I` prefix — `ICommandHandler<TCommand>`.
-- Null objects: `Null` prefix — `NullCommandHandler<TCommand>`.
-- Handler method signature: `HandleAsync(T input, CancellationToken cancellationToken = default)`.
-- Test classes: `{Subject}Tests`.
-- Test methods: `Subject_Result_WhenCondition`
-  - **Subject** — method or member under test (`InvokeAsync`, `Ctor`, `GetService`, …)
-  - **Result** — expected outcome (`ThrowsArgumentNullException`, `ReturnsUnit`, `InvokesHandler`, …)
-  - **Condition** — `When…` clause describing the scenario (`WhenRequestIsNull`, `WhenVoidCommand`); omit when the result is unconditional
-  - Result always comes **before** the condition; use `When` not `If`
 
 ## Namespaces
 
@@ -64,3 +47,4 @@ Strip `.Tests`, `.Core`, `.Abstractions` when deriving `RootNamespace`; keep all
 | `Cqrs.DependencyInjection` | `KatzuoOgust.Cqrs.DependencyInjection` |
 
 Add `using KatzuoOgust.Cqrs;` in any file under `Cqrs.Pipeline.*` that references core types.
+

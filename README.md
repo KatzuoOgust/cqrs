@@ -204,3 +204,7 @@ make test    # dotnet test Cqrs.slnx
 ```
 
 Requires [.NET 10 SDK](https://dotnet.microsoft.com/download).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
