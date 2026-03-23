@@ -7,24 +7,36 @@ public abstract partial class Decorator
 	/// is exactly <typeparamref name="TService"/>.
 	/// </summary>
 	public static Decorator Exact<TService>(Func<TService, IServiceProvider, TService> factory)
-		where TService : class =>
-		new ExactDecorator<TService>(factory);
+		where TService : class
+	{
+		ArgumentNullException.ThrowIfNull(factory);
+		return new ExactDecorator<TService>(factory);
+	}
 
 	/// <summary>
 	/// Creates a descriptor that applies <paramref name="factory"/> whenever the resolved type
 	/// is exactly <typeparamref name="TService"/>.
 	/// </summary>
 	public static Decorator Exact<TService>(Func<TService, TService> factory)
-		where TService : class =>
-		new ExactDecorator<TService>((svc, _) => factory(svc));
+		where TService : class
+	{
+		ArgumentNullException.ThrowIfNull(factory);
+
+		return new ExactDecorator<TService>((svc, _) => factory(svc));
+	}
 
 	/// <summary>
 	/// Creates a descriptor that wraps <paramref name="serviceType"/> with <paramref name="decoratorType"/>.
 	/// The constructor must accept <c>(serviceType)</c> or <c>(serviceType, IServiceProvider)</c>.
 	/// Throws <see cref="InvalidOperationException"/> at registration time if no suitable constructor is found.
 	/// </summary>
-	public static Decorator ExactByType(Type serviceType, Type decoratorType) =>
-		new ExactDecorator(serviceType, BuildCtorInvoker(serviceType, decoratorType));
+	public static Decorator Exact(Type serviceType, Type decoratorType)
+	{
+		ArgumentNullException.ThrowIfNull(serviceType);
+		ArgumentNullException.ThrowIfNull(decoratorType);
+
+		return new ExactDecorator(serviceType, BuildCtorInvoker(serviceType, decoratorType));
+	}
 
 	private sealed class ExactDecorator(
 		Type serviceType,

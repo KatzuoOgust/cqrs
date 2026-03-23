@@ -35,10 +35,6 @@ public abstract partial class Decorator
 	/// </returns>
 	public abstract object? TryApply(Type serviceType, Type? openServiceType, object service, IServiceProvider sp);
 
-	// -----------------------------------------------------------------------
-	// Constructor resolution helpers
-	// -----------------------------------------------------------------------
-
 	/// <summary>
 	/// Walks <paramref name="decoratorType"/>'s public constructors and returns the type of the first
 	/// parameter whose type is an interface or base class that <paramref name="decoratorType"/> implements.
@@ -53,10 +49,7 @@ public abstract partial class Decorator
 				return first.ParameterType;
 		}
 
-		throw new InvalidOperationException(
-			$"Cannot infer service type for '{decoratorType}'. " +
-			$"Ensure it has a constructor whose first parameter is an interface or base class that '{decoratorType}' implements. " +
-			$"Alternatively use Decorate<TService, TDecorator>() to specify the service type explicitly.");
+		throw Error.CannotInferServiceType(decoratorType);
 	}
 
 	/// <summary>
@@ -85,8 +78,6 @@ public abstract partial class Decorator
 			return Expression.Lambda<Func<object, IServiceProvider, object>>(body, svcParam, spParam).Compile();
 		}
 
-		throw new InvalidOperationException(
-			$"'{decoratorType}' has no constructor accepting '{serviceType}' " +
-			$"(with or without a trailing IServiceProvider parameter).");
+		throw Error.NoSuitableConstructor(serviceType, decoratorType);
 	}
 }

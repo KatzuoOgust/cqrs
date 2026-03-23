@@ -8,14 +8,19 @@ public abstract partial class Decorator
 	/// The predicate is evaluated before the inner descriptor, so the inner factory is never
 	/// called for non-matching types.
 	/// </summary>
-	public static Decorator Conditional(Func<Type, bool> predicate, Decorator inner) =>
-		new ConditionalDescriptor(predicate, inner);
+	public static Decorator Conditional(Func<Type, bool> predicate, Decorator inner)
+	{
+		ArgumentNullException.ThrowIfNull(predicate);
+		ArgumentNullException.ThrowIfNull(inner);
+
+		return new ConditionalDescriptor(predicate, inner);
+	}
 
 	private sealed class ConditionalDescriptor(
 		Func<Type, bool> predicate,
 		Decorator inner) : Decorator
 	{
-		public override object? TryApply(Type serviceType, Type? openServiceType, object service, IServiceProvider sp) =>
-			predicate(serviceType) ? inner.TryApply(serviceType, openServiceType, service, sp) : null;
+		public override object? TryApply(Type serviceType, Type? openServiceType, object service, IServiceProvider sp)
+			=> predicate(serviceType) ? inner.TryApply(serviceType, openServiceType, service, sp) : null;
 	}
 }

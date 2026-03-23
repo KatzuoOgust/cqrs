@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace KatzuoOgust.Cqrs.DependencyInjection.Decoration;
 
 /// <summary>Extension methods for registering decorators on a <see cref="DecoratingServiceProvider"/>.</summary>
@@ -11,6 +13,7 @@ public static class DecoratingServiceProviderExtensions
 	{
 		ArgumentNullException.ThrowIfNull(provider);
 		ArgumentNullException.ThrowIfNull(decorator);
+
 		provider.Add(Decorator.Exact(decorator));
 		return provider;
 	}
@@ -25,8 +28,9 @@ public static class DecoratingServiceProviderExtensions
 		where TDecorator : class
 	{
 		ArgumentNullException.ThrowIfNull(provider);
+
 		var decoratorType = typeof(TDecorator);
-		provider.Add(Decorator.ExactByType(Decorator.InferServiceTypeFromCtors(decoratorType), decoratorType));
+		provider.Add(Decorator.Exact(Decorator.InferServiceTypeFromCtors(decoratorType), decoratorType));
 		return provider;
 	}
 
@@ -41,7 +45,8 @@ public static class DecoratingServiceProviderExtensions
 		where TDecorator : class, TService
 	{
 		ArgumentNullException.ThrowIfNull(provider);
-		provider.Add(Decorator.ExactByType(typeof(TService), typeof(TDecorator)));
+
+		provider.Add(Decorator.Exact(typeof(TService), typeof(TDecorator)));
 		return provider;
 	}
 
@@ -58,11 +63,7 @@ public static class DecoratingServiceProviderExtensions
 		ArgumentNullException.ThrowIfNull(provider);
 		ArgumentNullException.ThrowIfNull(openGenericServiceType);
 		ArgumentNullException.ThrowIfNull(decorator);
-
-		if (!openGenericServiceType.IsGenericTypeDefinition)
-			throw new ArgumentException(
-				$"'{openGenericServiceType}' is not an open generic type definition.",
-				nameof(openGenericServiceType));
+		Error.ThrowIfNotOpenGenericTypeDefinition(openGenericServiceType);
 
 		provider.Add(Decorator.Generic(openGenericServiceType, decorator));
 		return provider;
@@ -81,11 +82,7 @@ public static class DecoratingServiceProviderExtensions
 		ArgumentNullException.ThrowIfNull(provider);
 		ArgumentNullException.ThrowIfNull(openGenericServiceType);
 		ArgumentNullException.ThrowIfNull(decorator);
-
-		if (!openGenericServiceType.IsGenericTypeDefinition)
-			throw new ArgumentException(
-				$"'{openGenericServiceType}' is not an open generic type definition.",
-				nameof(openGenericServiceType));
+		Error.ThrowIfNotOpenGenericTypeDefinition(openGenericServiceType);
 
 		provider.Add(Decorator.Generic(openGenericServiceType, decorator));
 		return provider;
@@ -105,18 +102,10 @@ public static class DecoratingServiceProviderExtensions
 		ArgumentNullException.ThrowIfNull(provider);
 		ArgumentNullException.ThrowIfNull(openGenericServiceType);
 		ArgumentNullException.ThrowIfNull(openDecoratorType);
+		Error.ThrowIfNotOpenGenericTypeDefinition(openGenericServiceType);
+		Error.ThrowIfNotOpenGenericTypeDefinition(openDecoratorType);
 
-		if (!openGenericServiceType.IsGenericTypeDefinition)
-			throw new ArgumentException(
-				$"'{openGenericServiceType}' is not an open generic type definition.",
-				nameof(openGenericServiceType));
-
-		if (!openDecoratorType.IsGenericTypeDefinition)
-			throw new ArgumentException(
-				$"'{openDecoratorType}' is not an open generic type definition.",
-				nameof(openDecoratorType));
-
-		provider.Add(Decorator.GenericByType(openGenericServiceType, openDecoratorType));
+		provider.Add(Decorator.Generic(openGenericServiceType, openDecoratorType));
 		return provider;
 	}
 
@@ -146,5 +135,18 @@ public static class DecoratingServiceProviderExtensions
 	{
 		public static readonly NullServiceProvider Instance = new();
 		public object? GetService(Type serviceType) => null;
+	}
+
+	private static class Error
+	{
+		internal static void ThrowIfNotOpenGenericTypeDefinition(
+			Type type,
+			[CallerArgumentExpression(nameof(type))] string paramName = "")
+		{
+			if (!type.IsGenericTypeDefinition)
+				throw new ArgumentException(
+					$"'{type}' is not an open generic type definition.",
+					paramName);
+		}
 	}
 }
