@@ -69,6 +69,29 @@ public static class DecoratingServiceProviderExtensions
 	}
 
 	/// <summary>
+	/// Registers an open-generic decorator. <paramref name="openGenericServiceType"/> must be an open
+	/// generic type definition (e.g. <c>typeof(ICommandHandler&lt;&gt;)</c>).
+	/// The factory receives the closed service type and the resolved inner instance.
+	/// </summary>
+	public static DecoratingServiceProvider Decorate(
+		this DecoratingServiceProvider provider,
+		Type openGenericServiceType,
+		Func<Type, object, object> decorator)
+	{
+		ArgumentNullException.ThrowIfNull(provider);
+		ArgumentNullException.ThrowIfNull(openGenericServiceType);
+		ArgumentNullException.ThrowIfNull(decorator);
+
+		if (!openGenericServiceType.IsGenericTypeDefinition)
+			throw new ArgumentException(
+				$"'{openGenericServiceType}' is not an open generic type definition.",
+				nameof(openGenericServiceType));
+
+		provider.Add(Decorator.Generic(openGenericServiceType, decorator));
+		return provider;
+	}
+
+	/// <summary>
 	/// Registers an open-generic decorator using <paramref name="openDecoratorType"/>, auto-building
 	/// the closed decorator via constructor reflection — no factory lambda needed.
 	/// Both arguments must be open generic type definitions.

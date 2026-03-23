@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Linq.Expressions;
 
 namespace KatzuoOgust.Cqrs.DependencyInjection.Decoration;
@@ -18,7 +17,7 @@ namespace KatzuoOgust.Cqrs.DependencyInjection.Decoration;
 /// service, each subsequent one wraps the result of the previous.
 /// </para>
 /// </remarks>
-public abstract class Decorator
+public abstract partial class Decorator
 {
 	/// <summary>
 	/// Attempts to apply this decorator to <paramref name="service"/>.
@@ -35,64 +34,6 @@ public abstract class Decorator
 	/// <paramref name="serviceType"/>.
 	/// </returns>
 	public abstract object? TryApply(Type serviceType, Type? openServiceType, object service, IServiceProvider sp);
-
-	// -----------------------------------------------------------------------
-	// Factory methods — lambda-based
-	// -----------------------------------------------------------------------
-
-	/// <summary>
-	/// Creates a descriptor that applies <paramref name="factory"/> whenever the resolved type
-	/// is exactly <typeparamref name="TService"/>.
-	/// </summary>
-	public static Decorator Exact<TService>(Func<TService, IServiceProvider, TService> factory)
-		where TService : class =>
-		new ExactDecorator<TService>(factory);
-
-	/// <summary>
-	/// Creates a descriptor that applies <paramref name="factory"/> whenever the resolved type's
-	/// open-generic definition matches <paramref name="openGenericServiceType"/>.
-	/// The factory receives the closed service type, the inner instance, and the service provider.
-	/// </summary>
-	public static Decorator Generic(
-		Type openGenericServiceType,
-		Func<Type, object, IServiceProvider, object> factory) =>
-		new GenericDecorator(openGenericServiceType, factory);
-
-	// -----------------------------------------------------------------------
-	// Factory methods — type-based (constructor resolved via Expression trees)
-	// -----------------------------------------------------------------------
-
-	/// <summary>
-	/// Creates a descriptor that wraps <paramref name="serviceType"/> with <paramref name="decoratorType"/>.
-	/// The constructor must accept <c>(serviceType)</c> or <c>(serviceType, IServiceProvider)</c>.
-	/// Throws <see cref="InvalidOperationException"/> at registration time if no suitable constructor is found.
-	/// </summary>
-	public static Decorator ExactByType(Type serviceType, Type decoratorType)
-	{
-		var factory = BuildCtorInvoker(serviceType, decoratorType);
-		return new ExactByTypeDecorator(serviceType, factory);
-	}
-
-	/// <summary>
-	/// Creates a descriptor for open-generic decoration. Whenever a closed type whose open-generic
-	/// definition matches <paramref name="openServiceType"/> is resolved, the corresponding closed
-	/// <paramref name="openDecoratorType"/> is instantiated. Constructor invokers are compiled once
-	/// per closed type and cached.
-	/// Both arguments must be open generic type definitions (e.g. <c>typeof(ICommandHandler&lt;&gt;)</c>).
-	/// </summary>
-	public static Decorator GenericByType(
-		Type openServiceType,
-		Type openDecoratorType) =>
-		new GenericByTypeDecorator(openServiceType, openDecoratorType);
-
-	/// <summary>
-	/// Creates a descriptor that wraps <paramref name="inner"/> and only invokes it when
-	/// <paramref name="predicate"/> returns <see langword="true"/> for the resolved service type.
-	/// The predicate is evaluated before the inner descriptor, so the inner factory is never
-	/// called for non-matching types.
-	/// </summary>
-	public static Decorator Conditional(Func<Type, bool> predicate, Decorator inner) =>
-		new ConditionalDescriptor(predicate, inner);
 
 	// -----------------------------------------------------------------------
 	// Constructor resolution helpers
@@ -124,7 +65,7 @@ public abstract class Decorator
 	/// two-parameter overload. The lambda is compiled once at registration time (fail-fast) and
 	/// reused on every resolve — no <c>MethodBase.Invoke</c> or array allocation at call time.
 	/// </summary>
-	private static Func<object, IServiceProvider, object> BuildCtorInvoker(Type serviceType, Type decoratorType)
+	internal static Func<object, IServiceProvider, object> BuildCtorInvoker(Type serviceType, Type decoratorType)
 	{
 		var svcParam = Expression.Parameter(typeof(object), "svc");
 		var spParam  = Expression.Parameter(typeof(IServiceProvider), "sp");
@@ -147,62 +88,5 @@ public abstract class Decorator
 		throw new InvalidOperationException(
 			$"'{decoratorType}' has no constructor accepting '{serviceType}' " +
 			$"(with or without a trailing IServiceProvider parameter).");
-	}
-
-	// -----------------------------------------------------------------------
-	// Implementations
-	// -----------------------------------------------------------------------
-
-	private sealed class ExactDecorator<TService>(
-		Func<TService, IServiceProvider, TService> factory) : Decorator
-		where TService : class
-	{
-		public override object? TryApply(Type serviceType, Type? openServiceType, object service, IServiceProvider sp)
-			=> serviceType == typeof(TService) ? factory((TService)service, sp) : null;
-	}
-
-	private sealed class ExactByTypeDecorator(
-		Type serviceType,
-		Func<object, IServiceProvider, object> factory) : Decorator
-	{
-		public override object? TryApply(Type st, Type? openServiceType, object service, IServiceProvider sp)
-			=> st == serviceType ? factory(service, sp) : null;
-	}
-
-	private sealed class GenericDecorator(
-		Type openGenericServiceType,
-		Func<Type, object, IServiceProvider, object> factory) : Decorator
-	{
-		public override object? TryApply(Type serviceType, Type? openServiceType, object service, IServiceProvider sp)
-			=> openServiceType == openGenericServiceType ? factory(serviceType, service, sp) : null;
-	}
-
-	private sealed class GenericByTypeDecorator(
-		Type openServiceType,
-		Type openDecoratorType) : Decorator
-	{
-		private readonly ConcurrentDictionary<Type, Func<object, IServiceProvider, object>> _cache = new();
-
-		public override object? TryApply(Type serviceType, Type? openType, object service, IServiceProvider sp)
-		{
-			if (openType != openServiceType) return null;
-
-			var factory = _cache.GetOrAdd(serviceType, BuildFactory);
-			return factory(service, sp);
-		}
-
-		private Func<object, IServiceProvider, object> BuildFactory(Type closedServiceType)
-		{
-			var closedDecorator = openDecoratorType.MakeGenericType(closedServiceType.GetGenericArguments());
-			return BuildCtorInvoker(closedServiceType, closedDecorator);
-		}
-	}
-
-	private sealed class ConditionalDescriptor(
-		Func<Type, bool> predicate,
-		Decorator inner) : Decorator
-	{
-		public override object? TryApply(Type serviceType, Type? openServiceType, object service, IServiceProvider sp) =>
-			predicate(serviceType) ? inner.TryApply(serviceType, openServiceType, service, sp) : null;
 	}
 }
