@@ -43,6 +43,11 @@ dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTest
 - Null objects: `Null` prefix — `NullCommandHandler<TCommand>`.
 - Handler method signature: `HandleAsync(T input, CancellationToken cancellationToken = default)`.
 - Test classes: `{Subject}Tests`.
+- Test methods: `Subject_Result_WhenCondition`
+  - **Subject** — method or member under test (`InvokeAsync`, `Ctor`, `GetService`, …)
+  - **Result** — expected outcome (`ThrowsArgumentNullException`, `ReturnsUnit`, `InvokesHandler`, …)
+  - **Condition** — `When…` clause describing the scenario (`WhenRequestIsNull`, `WhenVoidCommand`); omit when the result is unconditional
+  - Result always comes **before** the condition; use `When` not `If`
 
 ## Namespaces
 

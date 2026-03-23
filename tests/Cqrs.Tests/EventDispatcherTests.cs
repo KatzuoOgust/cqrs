@@ -37,7 +37,7 @@ public sealed class EventDispatcherTests
 	// -----------------------------------------------------------------------
 
 	[Fact]
-	public async Task PublishAsync_SingleHandler_IsInvoked()
+	public async Task PublishAsync_InvokesHandler_WhenSingleHandlerRegistered()
 	{
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();
@@ -51,7 +51,7 @@ public sealed class EventDispatcherTests
 	}
 
 	[Fact]
-	public async Task PublishAsync_MultipleHandlers_AllInvoked()
+	public async Task PublishAsync_InvokesAllHandlers_WhenMultipleHandlersRegistered()
 	{
 		var h1 = new TrackingHandler();
 		var h2 = new TrackingHandler();
@@ -65,14 +65,14 @@ public sealed class EventDispatcherTests
 	}
 
 	[Fact]
-	public async Task PublishAsync_NoHandlersRegistered_CompletesWithoutThrowing()
+	public async Task PublishAsync_Completes_WhenNoHandlersRegistered()
 	{
 		// IEnumerable<IEventHandler<T>> not registered → treated as empty collection.
 		await new EventDispatcher(new SimpleServiceProvider()).PublishAsync(new UserCreatedEvent("Carol"));
 	}
 
 	[Fact]
-	public async Task PublishAsync_CancellationTokenForwarded()
+	public async Task PublishAsync_ForwardsCancellationToken()
 	{
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();
@@ -85,20 +85,20 @@ public sealed class EventDispatcherTests
 	}
 
 	[Fact]
-	public async Task PublishAsync_NullEvent_ThrowsArgumentNullException()
+	public async Task PublishAsync_ThrowsArgumentNullException_WhenEventIsNull()
 	{
 		await Assert.ThrowsAsync<ArgumentNullException>(
 			() => new EventDispatcher(new SimpleServiceProvider()).PublishAsync<UserCreatedEvent>(null!));
 	}
 
 	[Fact]
-	public void Ctor_NullServiceProvider_ThrowsArgumentNullException()
+	public void Ctor_ThrowsArgumentNullException_WhenServiceProviderIsNull()
 	{
 		Assert.Throws<ArgumentNullException>(() => new EventDispatcher(null!));
 	}
 
 	[Fact]
-	public async Task PublishAsync_CalledMultipleTimes_UsesCachedProcessor()
+	public async Task PublishAsync_Completes_WhenCalledMultipleTimes()
 	{
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();
@@ -116,7 +116,7 @@ public sealed class EventDispatcherTests
 	// -----------------------------------------------------------------------
 
 	[Fact]
-	public async Task DispatchAsync_SingleHandler_IsInvoked()
+	public async Task DispatchAsync_InvokesHandler_WhenSingleHandlerRegistered()
 	{
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();
@@ -130,7 +130,7 @@ public sealed class EventDispatcherTests
 	}
 
 	[Fact]
-	public async Task DispatchAsync_MultipleHandlers_AllInvoked()
+	public async Task DispatchAsync_InvokesAllHandlers_WhenMultipleHandlersRegistered()
 	{
 		var h1 = new TrackingHandler();
 		var h2 = new TrackingHandler();
@@ -144,7 +144,7 @@ public sealed class EventDispatcherTests
 	}
 
 	[Fact]
-	public async Task DispatchAsync_CancellationTokenForwarded()
+	public async Task DispatchAsync_ForwardsCancellationToken()
 	{
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();
@@ -157,7 +157,7 @@ public sealed class EventDispatcherTests
 	}
 
 	[Fact]
-	public async Task DispatchAsync_NullEvent_ThrowsArgumentNullException()
+	public async Task DispatchAsync_ThrowsArgumentNullException_WhenEventIsNull()
 	{
 		await Assert.ThrowsAsync<ArgumentNullException>(
 			() => new EventDispatcher(new SimpleServiceProvider()).DispatchAsync<UserCreatedEvent>(null!));

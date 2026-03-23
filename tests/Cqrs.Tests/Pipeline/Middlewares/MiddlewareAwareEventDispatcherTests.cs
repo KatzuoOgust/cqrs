@@ -44,7 +44,7 @@ public sealed class MiddlewareAwareEventDispatcherTests
 	// -----------------------------------------------------------------------
 
 	[Fact]
-	public async Task DispatchAsync_NoMiddlewares_PassesThroughToInner()
+	public async Task DispatchAsync_PassesThroughToInner_WhenNoMiddlewares()
 	{
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();
@@ -56,7 +56,7 @@ public sealed class MiddlewareAwareEventDispatcherTests
 	}
 
 	[Fact]
-	public async Task DispatchAsync_SingleMiddleware_WrapsHandler()
+	public async Task DispatchAsync_WrapsHandler_WhenSingleMiddleware()
 	{
 		var log = new List<string>();
 		var handler = new TrackingHandler();
@@ -71,7 +71,7 @@ public sealed class MiddlewareAwareEventDispatcherTests
 	}
 
 	[Fact]
-	public async Task DispatchAsync_MultipleMiddlewares_ChainedOutermostFirst()
+	public async Task DispatchAsync_ChainsOutermostFirst_WhenMultipleMiddlewares()
 	{
 		var log = new List<string>();
 		var sp = new SimpleServiceProvider();
@@ -87,7 +87,7 @@ public sealed class MiddlewareAwareEventDispatcherTests
 	}
 
 	[Fact]
-	public async Task DispatchAsync_NullEvent_ThrowsArgumentNullException()
+	public async Task DispatchAsync_ThrowsArgumentNullException_WhenEventIsNull()
 	{
 		await Assert.ThrowsAsync<ArgumentNullException>(
 			() => new MiddlewareAwareEventDispatcher(MakeDispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())
@@ -95,7 +95,7 @@ public sealed class MiddlewareAwareEventDispatcherTests
 	}
 
 	[Fact]
-	public async Task DispatchAsync_CalledMultipleTimes_UsesCachedInvoker()
+	public async Task DispatchAsync_UsesCachedInvoker_WhenCalledMultipleTimes()
 	{
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();

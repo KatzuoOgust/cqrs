@@ -63,7 +63,7 @@ public sealed class MiddlewareAwareDispatcherTests
 	// -----------------------------------------------------------------------
 
 	[Fact]
-	public async Task InvokeAsync_NoPipelines_PassesThroughToHandler()
+	public async Task InvokeAsync_PassesThroughToHandler_WhenNoMiddlewares()
 	{
 		var sp = new SimpleServiceProvider();
 		sp.Register<ICommandHandler<AddCommand, int>>(new AddHandler());
@@ -74,7 +74,7 @@ public sealed class MiddlewareAwareDispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_SinglePipeline_WrapsResult()
+	public async Task InvokeAsync_WrapsResult_WhenSingleMiddleware()
 	{
 		var sp = new SimpleServiceProvider();
 		sp.Register<ICommandHandler<AddCommand, int>>(new AddHandler());
@@ -88,7 +88,7 @@ public sealed class MiddlewareAwareDispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_MultiplePipelines_ChainedOutermostFirst()
+	public async Task InvokeAsync_ChainsOutermostFirst_WhenMultipleMiddlewares()
 	{
 		// pipeline[0] is outermost: multiplies by 10 AFTER pipeline[1] (×2) and handler (+)
 		// order: p0.before → p1.before → handler → p1.after → p0.after
@@ -109,7 +109,7 @@ public sealed class MiddlewareAwareDispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_Query_PipelineApplied()
+	public async Task InvokeAsync_AppliesMiddleware_WhenQuery()
 	{
 		var sp = new SimpleServiceProvider();
 		sp.Register<IQueryHandler<MultiplyQuery, int>>(new MultiplyHandler());
@@ -123,7 +123,7 @@ public sealed class MiddlewareAwareDispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_VoidCommand_PipelineApplied()
+	public async Task InvokeAsync_AppliesMiddleware_WhenVoidCommand()
 	{
 		var handler = new LogHandler();
 		var pipeline = new VoidPipeline();
@@ -139,7 +139,7 @@ public sealed class MiddlewareAwareDispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_CalledMultipleTimes_UsesCachedInvoker()
+	public async Task InvokeAsync_UsesCachedInvoker_WhenCalledMultipleTimes()
 	{
 		var sp = new SimpleServiceProvider();
 		sp.Register<ICommandHandler<AddCommand, int>>(new AddHandler());

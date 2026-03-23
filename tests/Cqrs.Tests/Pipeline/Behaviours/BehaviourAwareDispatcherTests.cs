@@ -49,7 +49,7 @@ public sealed class BehaviourAwareDispatcherTests
 	// -----------------------------------------------------------------------
 
 	[Fact]
-	public async Task InvokeAsync_NoBehaviours_PassesThroughToHandler()
+	public async Task InvokeAsync_PassesThroughToHandler_WhenNoBehaviours()
 	{
 		var sp = new SimpleServiceProvider();
 		sp.Register<ICommandHandler<AddCommand, int>>(new AddHandler());
@@ -60,7 +60,7 @@ public sealed class BehaviourAwareDispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_SingleBehaviour_WrapsDispatch()
+	public async Task InvokeAsync_WrapsDispatch_WhenSingleBehaviour()
 	{
 		var log = new List<string>();
 		var sp = new SimpleServiceProvider();
@@ -74,7 +74,7 @@ public sealed class BehaviourAwareDispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_MultipleBehaviours_ChainedOutermostFirst()
+	public async Task InvokeAsync_ChainsOutermostFirst_WhenMultipleBehaviours()
 	{
 		var log = new List<string>();
 		var sp = new SimpleServiceProvider();
@@ -90,7 +90,7 @@ public sealed class BehaviourAwareDispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_VoidCommand_BehaviourApplied()
+	public async Task InvokeAsync_AppliesBehaviour_WhenVoidCommand()
 	{
 		var log = new List<string>();
 		var handler = new PingHandler();
@@ -105,7 +105,7 @@ public sealed class BehaviourAwareDispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_BehaviourReceivesRequest()
+	public async Task InvokeAsync_PassesRequestToBehaviour()
 	{
 		IRequest? captured = null;
 		var sp = new SimpleServiceProvider();
@@ -118,7 +118,7 @@ public sealed class BehaviourAwareDispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_NullRequest_ThrowsArgumentNullException()
+	public async Task InvokeAsync_ThrowsArgumentNullException_WhenRequestIsNull()
 	{
 		await Assert.ThrowsAsync<ArgumentNullException>(
 			() => new BehaviourAwareDispatcher(new Dispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())

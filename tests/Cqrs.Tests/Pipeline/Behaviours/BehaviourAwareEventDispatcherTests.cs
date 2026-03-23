@@ -36,7 +36,7 @@ public sealed class BehaviourAwareEventDispatcherTests
 	private static IEventDispatcher MakeDispatcher(IServiceProvider sp) => new EventDispatcher(sp);
 
 	[Fact]
-	public async Task DispatchAsync_NoBehaviours_PassesThroughToHandler()
+	public async Task DispatchAsync_PassesThroughToHandler_WhenNoBehaviours()
 	{
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();
@@ -48,7 +48,7 @@ public sealed class BehaviourAwareEventDispatcherTests
 	}
 
 	[Fact]
-	public async Task DispatchAsync_SingleBehaviour_WrapsPublication()
+	public async Task DispatchAsync_WrapsDispatch_WhenSingleBehaviour()
 	{
 		var log = new List<string>();
 		var handler = new TrackingHandler();
@@ -63,7 +63,7 @@ public sealed class BehaviourAwareEventDispatcherTests
 	}
 
 	[Fact]
-	public async Task DispatchAsync_MultipleBehaviours_ChainedOutermostFirst()
+	public async Task DispatchAsync_ChainsOutermostFirst_WhenMultipleBehaviours()
 	{
 		var log = new List<string>();
 		var sp = new SimpleServiceProvider();
@@ -79,7 +79,7 @@ public sealed class BehaviourAwareEventDispatcherTests
 	}
 
 	[Fact]
-	public async Task DispatchAsync_BehaviourReceivesEvent()
+	public async Task DispatchAsync_PassesEventToBehaviour()
 	{
 		IEvent? captured = null;
 		var sp = new SimpleServiceProvider();
@@ -93,7 +93,7 @@ public sealed class BehaviourAwareEventDispatcherTests
 	}
 
 	[Fact]
-	public async Task DispatchAsync_NullEvent_ThrowsArgumentNullException()
+	public async Task DispatchAsync_ThrowsArgumentNullException_WhenEventIsNull()
 	{
 		await Assert.ThrowsAsync<ArgumentNullException>(
 			() => new BehaviourAwareEventDispatcher(MakeDispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())

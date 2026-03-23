@@ -49,7 +49,7 @@ public sealed class DispatcherTests
 	// -----------------------------------------------------------------------
 
 	[Fact]
-	public async Task InvokeAsync_VoidCommand_InvokesHandlerAndReturnsUnit()
+	public async Task InvokeAsync_ReturnsUnitAndInvokesHandler_WhenVoidCommand()
 	{
 		var handler = new PingHandler();
 		var sp = new SimpleServiceProvider();
@@ -62,7 +62,7 @@ public sealed class DispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_CommandWithResult_ReturnsHandlerResult()
+	public async Task InvokeAsync_ReturnsHandlerResult_WhenCommandWithResult()
 	{
 		var sp = new SimpleServiceProvider();
 		sp.Register<ICommandHandler<EchoCommand, string>>(new EchoHandler());
@@ -73,7 +73,7 @@ public sealed class DispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_Query_ReturnsHandlerResult()
+	public async Task InvokeAsync_ReturnsHandlerResult_WhenQuery()
 	{
 		var sp = new SimpleServiceProvider();
 		sp.Register<IQueryHandler<LengthQuery, int>>(new LengthHandler());
@@ -84,7 +84,7 @@ public sealed class DispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_UnregisteredHandler_ThrowsInvalidOperationException()
+	public async Task InvokeAsync_ThrowsInvalidOperationException_WhenHandlerNotRegistered()
 	{
 		var ex = await Assert.ThrowsAsync<InvalidOperationException>(
 			() => new Dispatcher(new SimpleServiceProvider()).InvokeAsync(new PingCommand()));
@@ -93,20 +93,20 @@ public sealed class DispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_NullRequest_ThrowsArgumentNullException()
+	public async Task InvokeAsync_ThrowsArgumentNullException_WhenRequestIsNull()
 	{
 		await Assert.ThrowsAsync<ArgumentNullException>(
 			() => new Dispatcher(new SimpleServiceProvider()).InvokeAsync<Unit>(null!));
 	}
 
 	[Fact]
-	public void Ctor_NullServiceProvider_ThrowsArgumentNullException()
+	public void Ctor_ThrowsArgumentNullException_WhenServiceProviderIsNull()
 	{
 		Assert.Throws<ArgumentNullException>(() => new Dispatcher(null!));
 	}
 
 	[Fact]
-	public async Task InvokeAsync_CalledMultipleTimes_UsesCachedProcessor()
+	public async Task InvokeAsync_UsesCachedDelegate_WhenCalledMultipleTimes()
 	{
 		var handler = new PingHandler();
 		var sp = new SimpleServiceProvider();
@@ -121,7 +121,7 @@ public sealed class DispatcherTests
 	}
 
 	[Fact]
-	public async Task InvokeAsync_VoidCommand_CancellationTokenForwarded()
+	public async Task InvokeAsync_ForwardsCancellationToken_WhenVoidCommand()
 	{
 		var captured = CancellationToken.None;
 		var sp = new SimpleServiceProvider();
@@ -147,7 +147,7 @@ public sealed class DispatcherTests
 	// -----------------------------------------------------------------------
 
 	[Fact]
-	public async Task EnqueueAsync_VoidCommand_InvokesHandler()
+	public async Task EnqueueAsync_InvokesHandler_WhenVoidCommand()
 	{
 		var handler = new PingHandler();
 		var sp = new SimpleServiceProvider();
@@ -159,7 +159,7 @@ public sealed class DispatcherTests
 	}
 
 	[Fact]
-	public async Task EnqueueAsync_CancellationTokenForwarded()
+	public async Task EnqueueAsync_ForwardsCancellationToken()
 	{
 		var captured = CancellationToken.None;
 		var sp = new SimpleServiceProvider();
