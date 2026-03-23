@@ -8,4 +8,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/Cqrs.Tests/Cqrs.Tests.csproj" />
   </Folder>
+  <Folder Name="/examples/">
+    <Project Path="examples/Cqrs.Examples/Cqrs.Examples.csproj" />
+  </Folder>
 </Solution>
