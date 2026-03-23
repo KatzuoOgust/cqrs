@@ -12,6 +12,7 @@ Lightweight, framework-agnostic CQRS abstractions for .NET 10. Zero NuGet depend
 | `Cqrs.Pipeline.Middlewares` | `KatzuoOgust.Cqrs.Pipeline.Middlewares` | Typed per-request/event middleware with full result access |
 | `Cqrs.Pipeline.Behaviours` | `KatzuoOgust.Cqrs.Pipeline.Behaviours` | Non-generic cross-cutting pipeline behaviours |
 | `Cqrs.DependencyInjection` | `KatzuoOgust.Cqrs.DependencyInjection` | `IServiceProvider` decorator that layers exact and open-generic handler decorators |
+| `Cqrs.Analyzer` | `KatzuoOgust.Cqrs.Analyzer` | Roslyn analyzers that enforce CQRS usage rules at compile time |
 
 ## Core abstractions (`Cqrs`)
 
@@ -181,6 +182,20 @@ IDispatcher dispatcher =
             sp),
         sp);
 ```
+
+## Analyzer (`Cqrs.Analyzer`)
+
+Roslyn analyzers shipped as a separate package that enforce CQRS usage rules at compile time.
+
+| ID | Severity | Rule |
+|---|---|---|
+| `CQRS001` | Error | Don't implement `IRequest<T>` directly — use `ICommand<T>` or `IQuery<T>` |
+| `CQRS002` | Warning | `IQuery<Unit>` is meaningless — use `ICommand` instead |
+| `CQRS003` | Warning | `ICommandHandler<T, Unit>` should be `ICommandHandler<T>` |
+| `CQRS020` | Warning | `IRequestMiddleware` implementation must call `next()` — omitting it silently breaks the pipeline |
+| `CQRS021` | Warning | Don't cast the non-generic `request` parameter inside `IRequestPipelineBehaviour` — use `IRequestMiddleware<TRequest, TResult>` for type-specific logic |
+| `CQRS030` | Info | Handler whose body is only `return Task.CompletedTask` should use `NullCommandHandler<T>.Instance` |
+| `CQRS031` | Info | Handler returning `default!` suggests a forgotten implementation |
 
 ## Examples
 

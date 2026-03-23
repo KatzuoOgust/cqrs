@@ -13,6 +13,7 @@ Thank you for your interest in contributing! This document covers the developmen
 make build   # dotnet build Cqrs.slnx
 make test    # dotnet test Cqrs.slnx
 make pack    # dotnet pack → ./artifacts/nupkgs (local smoke-check only)
+make clean   # remove bin/obj/artifacts
 ```
 
 Always build and run tests both before and after your changes:
@@ -33,6 +34,7 @@ dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTest
 | `src/Cqrs.Pipeline.Middlewares/` | Typed per-request/event middleware |
 | `src/Cqrs.Pipeline.Behaviours/` | Non-generic cross-cutting behaviours |
 | `src/Cqrs.DependencyInjection/` | `IServiceProvider` decorator with handler decoration |
+| `src/Cqrs.Analyzer/` | Roslyn analyzers enforcing CQRS usage rules (see `README.md` for diagnostic IDs) |
 | `tests/Cqrs.Tests/` | All tests — subdirectory mirrors the subject's namespace |
 | `examples/Cqrs.Examples/` | Runnable examples for all three pipeline layers |
 

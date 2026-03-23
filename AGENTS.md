@@ -22,6 +22,8 @@ dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTest
 | Core interfaces & null objects | `src/Cqrs/` |
 | Typed per-request/event middleware | `src/Cqrs.Pipeline.Middlewares/` |
 | Non-generic cross-cutting behaviours | `src/Cqrs.Pipeline.Behaviours/` |
+| `IServiceProvider` decorator with handler decoration | `src/Cqrs.DependencyInjection/` |
+| Roslyn analyzers | `src/Cqrs.Analyzer/` |
 | All tests | `tests/Cqrs.Tests/` — subdirectory mirrors the subject's namespace |
 
 ## Rules — never break these
