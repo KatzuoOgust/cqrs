@@ -118,6 +118,36 @@ public sealed class CqrsNullObjectAnalyzerTests
 		Assert.DoesNotContain(diagnostics, d => d.Id == "CQRS030");
 	}
 
+	[Fact]
+	public async Task Cqrs030_MultipleCommandHandlers_AnalyzesMatchingHandleAsync()
+	{
+		const string source = """
+		                      using System;
+		                      using System.Threading;
+		                      using System.Threading.Tasks;
+		                      using KatzuoOgust.Cqrs;
+		                      class FirstCmd : ICommand { }
+		                      class SecondCmd : ICommand { }
+		                      class MyHandler : ICommandHandler<FirstCmd>, ICommandHandler<SecondCmd>
+		                      {
+		                          public Task HandleAsync(FirstCmd command, CancellationToken ct = default)
+		                          {
+		                              Console.WriteLine("doing work");
+		                              return Task.CompletedTask;
+		                          }
+
+		                          public Task HandleAsync(SecondCmd command, CancellationToken ct = default)
+		                              => Task.CompletedTask;
+		                      }
+		                      """;
+
+		var diagnostics = await TestHelper.GetDiagnosticsAsync(Analyzer, source);
+
+		var d = Assert.Single(diagnostics, d => d.Id == "CQRS030");
+		Assert.Contains("SecondCmd", d.GetMessage());
+		Assert.DoesNotContain("FirstCmd", d.GetMessage());
+	}
+
 	// ── CQRS031 ──────────────────────────────────────────────────────────────
 
 	[Fact]
@@ -223,5 +253,30 @@ public sealed class CqrsNullObjectAnalyzerTests
 		var diagnostics = await TestHelper.GetDiagnosticsAsync(Analyzer, source);
 
 		Assert.DoesNotContain(diagnostics, d => d.Id == "CQRS031");
+	}
+
+	[Fact]
+	public async Task Cqrs031_MultipleReturningHandlers_AnalyzesMatchingHandleAsync()
+	{
+		const string source = """
+		                      using System.Threading;
+		                      using System.Threading.Tasks;
+		                      using KatzuoOgust.Cqrs;
+		                      class MyQuery : IQuery<int> { }
+		                      class MyCmd : ICommand<int> { }
+		                      class MyHandler : IQueryHandler<MyQuery, int>, ICommandHandler<MyCmd, int>
+		                      {
+		                          public Task<int> HandleAsync(MyQuery query, CancellationToken ct = default)
+		                              => Task.FromResult(42);
+
+		                          public Task<int> HandleAsync(MyCmd command, CancellationToken ct = default)
+		                              => Task.FromResult<int>(default!);
+		                      }
+		                      """;
+
+		var diagnostics = await TestHelper.GetDiagnosticsAsync(Analyzer, source);
+
+		var d = Assert.Single(diagnostics, d => d.Id == "CQRS031");
+		Assert.Contains("MyHandler", d.GetMessage());
 	}
 }

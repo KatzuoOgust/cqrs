@@ -55,63 +55,68 @@ public sealed class CqrsMiddlewareAnalyzer : DiagnosticAnalyzer
 		INamedTypeSymbol? iRequest)
 	{
 		var classDecl = (ClassDeclarationSyntax)ctx.Node;
-		if (ctx.SemanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol typeSymbol)
-			return;
+		if (ctx.SemanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol typeSymbol) return;
 
-		if (iMiddleware is not null && ImplementsOpenGeneric(typeSymbol, iMiddleware))
-			CheckCqrs020(ctx, classDecl, typeSymbol);
-
-		if (iBehaviour is not null && iRequest is not null
-		                           && typeSymbol.AllInterfaces.Any(i =>
-			                           SymbolEqualityComparer.Default.Equals(i, iBehaviour)))
-			CheckCqrs021(ctx, classDecl, typeSymbol, iRequest);
+		CheckCqrs020(ctx, iMiddleware, typeSymbol);
+		CheckCqrs021(ctx, iBehaviour, iRequest, typeSymbol, classDecl);
 	}
 
-	// ── CQRS020 ──────────────────────────────────────────────────────────────
 
-	private static void CheckCqrs020(
-		SyntaxNodeAnalysisContext ctx,
-		ClassDeclarationSyntax classDecl,
+
+	private static void CheckCqrs020(SyntaxNodeAnalysisContext ctx, INamedTypeSymbol? iMiddleware,
 		INamedTypeSymbol typeSymbol)
 	{
-		var handleAsync = FindHandleAsyncMethod(classDecl);
-		if (handleAsync is null)
-			return;
+		// Only applies to IRequestMiddleware<TRequest, TResult>
+		if (iMiddleware is null || !ImplementsOpenGeneric(typeSymbol, iMiddleware)) return;
 
-		if (!BodyCallsNext(handleAsync))
-			ctx.ReportDiagnostic(Diagnostic.Create(
-				Diagnostics.Cqrs020,
-				handleAsync.Identifier.GetLocation(),
-				typeSymbol.Name));
+		foreach (var (_, handleAsync, methodSymbol) in FindHandleAsyncImplementations(ctx, typeSymbol, iMiddleware))
+		{
+			if (!BodyCallsNext(ctx.SemanticModel, handleAsync, methodSymbol))
+				ctx.ReportDiagnostic(Diagnostic.Create(
+					Diagnostics.Cqrs020,
+					handleAsync.Identifier.GetLocation(),
+					typeSymbol.Name));
+		}
 	}
 
-	/// <summary>Returns true if <c>next(...)</c> is invoked anywhere in the method body.</summary>
-	private static bool BodyCallsNext(MethodDeclarationSyntax method)
+	/// <summary>
+	/// Returns true if the middleware's continuation delegate parameter is invoked anywhere in the method body.
+	/// </summary>
+	private static bool BodyCallsNext(
+		SemanticModel semanticModel,
+		MethodDeclarationSyntax method,
+		IMethodSymbol methodSymbol)
 	{
 		var root = (SyntaxNode?)method.Body ?? method.ExpressionBody;
 		if (root is null)
 			return false;
 
+		if (methodSymbol.Parameters.Length < 3)
+			return false;
+
+		var nextParameter = methodSymbol.Parameters[2];
+
 		return root.DescendantNodes()
 			.OfType<InvocationExpressionSyntax>()
-			.Any(inv => inv.Expression is IdentifierNameSyntax { Identifier.ValueText: "next" });
+			.Any(inv => IsNextInvocation(semanticModel, inv, nextParameter));
 	}
 
-	// ── CQRS021 ──────────────────────────────────────────────────────────────
-
-	private static void CheckCqrs021(
-		SyntaxNodeAnalysisContext ctx,
-		ClassDeclarationSyntax classDecl,
-		INamedTypeSymbol typeSymbol,
-		INamedTypeSymbol iRequest)
+	private static void CheckCqrs021(SyntaxNodeAnalysisContext ctx, INamedTypeSymbol? iBehaviour,
+		INamedTypeSymbol? iRequest, INamedTypeSymbol typeSymbol, ClassDeclarationSyntax classDecl)
 	{
-		var handleAsync = FindHandleAsyncMethod(classDecl);
-		if (handleAsync is null)
+		// Only applies to IRequestPipelineBehaviour, which is non-generic, so we look for any cast to a specific IRequest<T> in the body
+		if (iBehaviour is null
+		    || iRequest is null
+		    || !typeSymbol.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, iBehaviour)))
 			return;
+
+		var implementation = FindHandleAsyncImplementations(ctx, typeSymbol, iBehaviour).FirstOrDefault();
+		if (implementation.handleAsync is null) return;
+
+		var handleAsync = implementation.handleAsync;
 
 		var root = (SyntaxNode?)handleAsync.Body ?? handleAsync.ExpressionBody;
-		if (root is null)
-			return;
+		if (root is null) return;
 
 		foreach (var castNode in FindRequestCasts(root))
 		{
@@ -170,10 +175,53 @@ public sealed class CqrsMiddlewareAnalyzer : DiagnosticAnalyzer
 
 	// ── Helpers ───────────────────────────────────────────────────────────────
 
-	private static MethodDeclarationSyntax? FindHandleAsyncMethod(ClassDeclarationSyntax classDecl) =>
-		classDecl.Members
-			.OfType<MethodDeclarationSyntax>()
-			.FirstOrDefault(m => m.Identifier.ValueText == "HandleAsync");
+	private static bool IsNextInvocation(
+		SemanticModel semanticModel,
+		InvocationExpressionSyntax invocation,
+		IParameterSymbol nextParameter)
+	{
+		var exprSymbol = semanticModel.GetSymbolInfo(invocation.Expression).Symbol;
+		if (SymbolEqualityComparer.Default.Equals(exprSymbol, nextParameter))
+			return true;
+
+		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+		{
+			var targetSymbol = semanticModel.GetSymbolInfo(memberAccess.Expression).Symbol;
+			if (SymbolEqualityComparer.Default.Equals(targetSymbol, nextParameter)
+			    && memberAccess.Name.Identifier.ValueText == "Invoke")
+				return true;
+		}
+
+		return false;
+	}
+
+	private static IEnumerable<(INamedTypeSymbol iface, MethodDeclarationSyntax handleAsync, IMethodSymbol methodSymbol)>
+		FindHandleAsyncImplementations(
+			SyntaxNodeAnalysisContext ctx,
+			INamedTypeSymbol typeSymbol,
+			INamedTypeSymbol openInterface)
+	{
+		foreach (var iface in typeSymbol.AllInterfaces.Where(i =>
+			         SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, openInterface)
+			         || SymbolEqualityComparer.Default.Equals(i, openInterface)))
+		{
+			foreach (var ifaceMethod in iface.GetMembers("HandleAsync").OfType<IMethodSymbol>())
+			{
+				if (typeSymbol.FindImplementationForInterfaceMember(ifaceMethod) is not IMethodSymbol implMethod)
+					continue;
+
+				var syntax = implMethod.DeclaringSyntaxReferences
+					.Select(r => r.GetSyntax(ctx.CancellationToken))
+					.OfType<MethodDeclarationSyntax>()
+					.FirstOrDefault();
+
+				if (syntax is null)
+					continue;
+
+				yield return (iface, syntax, implMethod);
+			}
+		}
+	}
 
 	private static bool ImplementsOpenGeneric(INamedTypeSymbol type, INamedTypeSymbol openGeneric) =>
 		type.AllInterfaces.Any(i =>

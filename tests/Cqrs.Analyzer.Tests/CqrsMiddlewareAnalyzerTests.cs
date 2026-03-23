@@ -81,6 +81,28 @@ public sealed class CqrsMiddlewareAnalyzerTests
 		Assert.DoesNotContain(diagnostics, d => d.Id == "CQRS020");
 	}
 
+	[Fact]
+	public async Task Cqrs020_MiddlewareCallsDelegateWithDifferentParameterName_NoDiagnostic()
+	{
+		const string source = """
+		                      using System;
+		                      using System.Threading;
+		                      using System.Threading.Tasks;
+		                      using KatzuoOgust.Cqrs;
+		                      using KatzuoOgust.Cqrs.Pipeline.Middlewares;
+		                      class MyQuery : IQuery<int> { }
+		                      class MyMiddleware : IRequestMiddleware<MyQuery, int>
+		                      {
+		                          public Task<int> HandleAsync(MyQuery request, CancellationToken ct,
+		                              Func<CancellationToken, Task<int>> continuePipeline) => continuePipeline(ct);
+		                      }
+		                      """;
+
+		var diagnostics = await TestHelper.GetDiagnosticsAsync(Analyzer, source);
+
+		Assert.DoesNotContain(diagnostics, d => d.Id == "CQRS020");
+	}
+
 	// ── CQRS021 ──────────────────────────────────────────────────────────────
 
 	[Fact]
@@ -185,5 +207,36 @@ public sealed class CqrsMiddlewareAnalyzerTests
 		var diagnostics = await TestHelper.GetDiagnosticsAsync(Analyzer, source);
 
 		Assert.DoesNotContain(diagnostics, d => d.Id == "CQRS021");
+	}
+
+	[Fact]
+	public async Task Cqrs021_ClassWithMiddlewareAndBehaviour_AnalyzesBehaviourHandleAsync()
+	{
+		const string source = """
+		                      using System;
+		                      using System.Threading;
+		                      using System.Threading.Tasks;
+		                      using KatzuoOgust.Cqrs;
+		                      using KatzuoOgust.Cqrs.Pipeline.Behaviours;
+		                      using KatzuoOgust.Cqrs.Pipeline.Middlewares;
+		                      class MyQuery : IQuery<int> { }
+		                      class MyHandler : IRequestMiddleware<MyQuery, int>, IRequestPipelineBehaviour
+		                      {
+		                          public Task<int> HandleAsync(MyQuery request, CancellationToken ct,
+		                              Func<CancellationToken, Task<int>> next) => next(ct);
+
+		                          public async Task<object?> HandleAsync(IRequest request, CancellationToken ct,
+		                              Func<CancellationToken, Task<object?>> next)
+		                          {
+		                              var q = (MyQuery)request;
+		                              return await next(ct);
+		                          }
+		                      }
+		                      """;
+
+		var diagnostics = await TestHelper.GetDiagnosticsAsync(Analyzer, source);
+
+		var d = Assert.Single(diagnostics, d => d.Id == "CQRS021");
+		Assert.Contains("MyQuery", d.GetMessage());
 	}
 }

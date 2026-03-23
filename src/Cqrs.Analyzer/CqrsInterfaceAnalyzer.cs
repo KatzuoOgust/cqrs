@@ -55,58 +55,105 @@ public sealed class CqrsInterfaceAnalyzer : DiagnosticAnalyzer
 		INamedTypeSymbol? unit)
 	{
 		var typeDecl = (TypeDeclarationSyntax)ctx.Node;
-		if (typeDecl.BaseList is null)
-			return;
+		if (typeDecl.BaseList is null) return;
 
-		if (ctx.SemanticModel.GetDeclaredSymbol(typeDecl) is not INamedTypeSymbol typeSymbol)
-			return;
+		if (ctx.SemanticModel.GetDeclaredSymbol(typeDecl) is not INamedTypeSymbol typeSymbol) return;
 
 		foreach (var iface in typeSymbol.Interfaces)
 		{
-			var original = iface.OriginalDefinition;
-
-			// CQRS001: directly implements IRequest<T> — should be ICommand<T> or IQuery<T>
-			if (iRequestOfT is not null
-			    && SymbolEqualityComparer.Default.Equals(original, iRequestOfT))
-			{
-				var location = FindBaseTypeSyntaxLocation(typeDecl, iface, ctx.SemanticModel)
-				               ?? typeSymbol.Locations[0];
-				ctx.ReportDiagnostic(Diagnostic.Create(
-					Diagnostics.Cqrs001,
-					location,
-					typeSymbol.Name,
-					iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
-			}
-
-			// CQRS002: implements IQuery<Unit>
-			if (iQueryOfT is not null && unit is not null
-			                          && SymbolEqualityComparer.Default.Equals(original, iQueryOfT)
-			                          && SymbolEqualityComparer.Default.Equals(
-				                          iface.TypeArguments[0].OriginalDefinition, unit))
-			{
-				var location = FindBaseTypeSyntaxLocation(typeDecl, iface, ctx.SemanticModel)
-				               ?? typeSymbol.Locations[0];
-				ctx.ReportDiagnostic(Diagnostic.Create(
-					Diagnostics.Cqrs002,
-					location,
-					typeSymbol.Name));
-			}
-
-			// CQRS003: implements ICommandHandler<TCommand, Unit>
-			if (iCmdHandlerT2 is not null && unit is not null
-			                              && SymbolEqualityComparer.Default.Equals(original, iCmdHandlerT2)
-			                              && SymbolEqualityComparer.Default.Equals(
-				                              iface.TypeArguments[1].OriginalDefinition, unit))
-			{
-				var location = FindBaseTypeSyntaxLocation(typeDecl, iface, ctx.SemanticModel)
-				               ?? typeSymbol.Locations[0];
-				ctx.ReportDiagnostic(Diagnostic.Create(
-					Diagnostics.Cqrs003,
-					location,
-					typeSymbol.Name,
-					iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
-			}
+			CheckCqrs001(ctx, typeDecl, typeSymbol, iface, iRequestOfT);
+			CheckCqrs002(ctx, typeDecl, typeSymbol, iface, iQueryOfT, unit);
+			CheckCqrs003(ctx, typeDecl, typeSymbol, iface, iCmdHandlerT2, unit);
 		}
+	}
+
+	private static void CheckCqrs001(
+		SyntaxNodeAnalysisContext ctx,
+		TypeDeclarationSyntax typeDecl,
+		INamedTypeSymbol typeSymbol,
+		INamedTypeSymbol iface,
+		INamedTypeSymbol? iRequestOfT)
+	{
+		if (iRequestOfT is null) return;
+
+		// Check if the interface is IRequest<T> (regardless of T)
+		if (!SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, iRequestOfT)) return;
+
+		ReportInterfaceDiagnostic(
+			ctx,
+			typeDecl,
+			typeSymbol,
+			iface,
+			Diagnostics.Cqrs001,
+			typeSymbol.Name,
+			iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
+		);
+	}
+
+	private static void CheckCqrs002(
+		SyntaxNodeAnalysisContext ctx,
+		TypeDeclarationSyntax typeDecl,
+		INamedTypeSymbol typeSymbol,
+		INamedTypeSymbol iface,
+		INamedTypeSymbol? iQueryOfT,
+		INamedTypeSymbol? unit)
+	{
+		if (iQueryOfT is null || unit is null) return;
+
+		// Check if the interface is IQuery<T> (regardless of T)
+		if (!SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, iQueryOfT)) return;
+
+		// Check if T is Unit
+		if (!SymbolEqualityComparer.Default.Equals(iface.TypeArguments[0].OriginalDefinition, unit)) return;
+
+		ReportInterfaceDiagnostic(
+			ctx,
+			typeDecl,
+			typeSymbol,
+			iface,
+			Diagnostics.Cqrs002,
+			typeSymbol.Name
+		);
+	}
+
+	private static void CheckCqrs003(
+		SyntaxNodeAnalysisContext ctx,
+		TypeDeclarationSyntax typeDecl,
+		INamedTypeSymbol typeSymbol,
+		INamedTypeSymbol iface,
+		INamedTypeSymbol? iCmdHandlerT2,
+		INamedTypeSymbol? unit)
+	{
+		if (iCmdHandlerT2 is null || unit is null) return;
+
+		// Check if the interface is ICommandHandler<TCommand, TResult> (regardless of TCommand and TResult)
+		if (!SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, iCmdHandlerT2)) return;
+
+		// Check if TResult is Unit
+		if (!SymbolEqualityComparer.Default.Equals(iface.TypeArguments[1].OriginalDefinition, unit)) return;
+
+		ReportInterfaceDiagnostic(
+			ctx,
+			typeDecl,
+			typeSymbol,
+			iface,
+			Diagnostics.Cqrs003,
+			typeSymbol.Name,
+			iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
+		);
+	}
+
+	private static void ReportInterfaceDiagnostic(
+		SyntaxNodeAnalysisContext ctx,
+		TypeDeclarationSyntax typeDecl,
+		INamedTypeSymbol typeSymbol,
+		INamedTypeSymbol iface,
+		DiagnosticDescriptor descriptor,
+		params object?[] messageArgs)
+	{
+		var location = FindBaseTypeSyntaxLocation(typeDecl, iface, ctx.SemanticModel)
+		               ?? typeSymbol.Locations[0];
+		ctx.ReportDiagnostic(Diagnostic.Create(descriptor, location, messageArgs));
 	}
 
 	/// <summary>
