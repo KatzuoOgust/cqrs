@@ -1,8 +1,8 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Cqrs/Cqrs.csproj" />
-    <Project Path="src/Cqrs.Middlewares/Cqrs.Middlewares.csproj" />
-    <Project Path="src/Cqrs.Pipelines/Cqrs.Pipelines.csproj" />
+    <Project Path="src/Cqrs.Pipeline.Middlewares/Cqrs.Pipeline.Middlewares.csproj" />
+    <Project Path="src/Cqrs.Pipeline.Behaviours/Cqrs.Pipeline.Behaviours.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Cqrs.Tests/Cqrs.Tests.csproj" />

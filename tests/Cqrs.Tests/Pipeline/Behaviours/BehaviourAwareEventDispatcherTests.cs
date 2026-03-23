@@ -1,10 +1,8 @@
 using KatzuoOgust.Cqrs;
-using KatzuoOgust.Cqrs.Middlewares;
-using KatzuoOgust.Cqrs.Pipelines;
 
-namespace KatzuoOgust.Cqrs;
+namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 
-public sealed class PipelineEventDispatcherTests
+public sealed class BehaviourAwareEventDispatcherTests
 {
 	private sealed record OrderShippedEvent(int OrderId) : IEvent;
 
@@ -44,7 +42,7 @@ public sealed class PipelineEventDispatcherTests
 		var sp = new SimpleServiceProvider();
 		sp.Register<IEnumerable<IEventHandler<OrderShippedEvent>>>([handler]);
 
-		await new PipelineEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderShippedEvent(1));
+		await new BehaviourAwareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderShippedEvent(1));
 
 		Assert.Equal([1], handler.Received);
 	}
@@ -58,7 +56,7 @@ public sealed class PipelineEventDispatcherTests
 		sp.Register<IEnumerable<IEventHandler<OrderShippedEvent>>>([handler]);
 		sp.Register<IEnumerable<IEventPipelineBehaviour>>([new LoggingBehaviour(log, "b")]);
 
-		await new PipelineEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderShippedEvent(42));
+		await new BehaviourAwareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderShippedEvent(42));
 
 		Assert.Equal([42], handler.Received);
 		Assert.Equal(["b:before", "b:after"], log);
@@ -75,7 +73,7 @@ public sealed class PipelineEventDispatcherTests
 			new LoggingBehaviour(log, "b1"),
 		]);
 
-		await new PipelineEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderShippedEvent(1));
+		await new BehaviourAwareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderShippedEvent(1));
 
 		Assert.Equal(["b0:before", "b1:before", "b1:after", "b0:after"], log);
 	}
@@ -89,7 +87,7 @@ public sealed class PipelineEventDispatcherTests
 		sp.Register<IEnumerable<IEventPipelineBehaviour>>([new CapturingBehaviour(e => captured = e)]);
 
 		var evt = new OrderShippedEvent(7);
-		await new PipelineEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(evt);
+		await new BehaviourAwareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(evt);
 
 		Assert.Same(evt, captured);
 	}
@@ -98,7 +96,7 @@ public sealed class PipelineEventDispatcherTests
 	public async Task DispatchAsync_NullEvent_ThrowsArgumentNullException()
 	{
 		await Assert.ThrowsAsync<ArgumentNullException>(
-			() => new PipelineEventDispatcher(MakeDispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())
+			() => new BehaviourAwareEventDispatcher(MakeDispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())
 				.DispatchAsync<OrderShippedEvent>(null!));
 	}
 

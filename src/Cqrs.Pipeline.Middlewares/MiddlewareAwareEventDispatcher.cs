@@ -2,13 +2,13 @@ using KatzuoOgust.Cqrs;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 
-namespace KatzuoOgust.Cqrs.Middlewares;
+namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 
 /// <summary>
 /// Wraps an <see cref="IEventDispatcher"/> so that every dispatched event runs through the registered
 /// <see cref="IEventMiddleware{TEvent}"/> chain before reaching the actual handlers.
 /// </summary>
-public sealed class MiddlewareEventDispatcher(IEventDispatcher inner, IServiceProvider serviceProvider) : IEventDispatcher
+public sealed class MiddlewareAwareEventDispatcher(IEventDispatcher inner, IServiceProvider serviceProvider) : IEventDispatcher
 {
 	private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, IEventDispatcher, object, CancellationToken, Task>>
 		_cache = new();

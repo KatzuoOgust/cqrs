@@ -1,5 +1,5 @@
 using KatzuoOgust.Cqrs;
-namespace KatzuoOgust.Cqrs.Pipelines;
+namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 
 /// <summary>
 /// Decorates an <see cref="IDispatcher"/> so that every request passes through all registered
@@ -7,7 +7,7 @@ namespace KatzuoOgust.Cqrs.Pipelines;
 /// Behaviours are resolved once per <see cref="InvokeAsync{TResult}"/> call and are invoked
 /// outermost-first. The actual dispatch result is captured via the terminal delegate.
 /// </summary>
-public sealed class PipelineDispatcher(IDispatcher inner, IServiceProvider serviceProvider) : IDispatcher
+public sealed class BehaviourAwareDispatcher(IDispatcher inner, IServiceProvider serviceProvider) : IDispatcher
 {
 	public async Task<TResult> InvokeAsync<TResult>(
 		IRequest<TResult> request,

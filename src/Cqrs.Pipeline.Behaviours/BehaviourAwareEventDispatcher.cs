@@ -1,12 +1,12 @@
 using KatzuoOgust.Cqrs;
 
-namespace KatzuoOgust.Cqrs.Pipelines;
+namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 
 /// <summary>
 /// Decorates an <see cref="IEventDispatcher"/> so that every dispatched event passes through all registered
 /// <see cref="IEventPipelineBehaviour"/> instances before reaching the handlers.
 /// </summary>
-public sealed class PipelineEventDispatcher(IEventDispatcher inner, IServiceProvider serviceProvider) : IEventDispatcher
+public sealed class BehaviourAwareEventDispatcher(IEventDispatcher inner, IServiceProvider serviceProvider) : IEventDispatcher
 {
 	public async Task DispatchAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
 		where TEvent : IEvent

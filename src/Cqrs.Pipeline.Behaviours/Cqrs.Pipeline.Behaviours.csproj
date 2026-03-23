@@ -7,7 +7,7 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>KatzuoOgust.Cqrs.Pipelines</RootNamespace>
+    <RootNamespace>KatzuoOgust.Cqrs.Pipeline.Behaviours</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

@@ -9,8 +9,8 @@ Lightweight, framework-agnostic CQRS abstractions for .NET 10. Zero NuGet depend
 | Package | Namespace | Description |
 |---|---|---|
 | `Cqrs` | `KatzuoOgust.Cqrs` | Core interfaces, null-object handlers, `Dispatcher`, `EventDispatcher` |
-| `Cqrs.Middlewares` | `KatzuoOgust.Cqrs.Middlewares` | Typed per-request/event middleware with full result access |
-| `Cqrs.Pipelines` | `KatzuoOgust.Cqrs.Pipelines` | Non-generic cross-cutting pipeline behaviours |
+| `Cqrs.Pipeline.Middlewares` | `KatzuoOgust.Cqrs.Pipeline.Middlewares` | Typed per-request/event middleware with full result access |
+| `Cqrs.Pipeline.Behaviours` | `KatzuoOgust.Cqrs.Pipeline.Behaviours` | Non-generic cross-cutting pipeline behaviours |
 
 ## Core abstractions (`Cqrs`)
 
@@ -36,7 +36,7 @@ Lightweight, framework-agnostic CQRS abstractions for .NET 10. Zero NuGet depend
 | `NullEventHandler<T>` | No-op singleton event handler |
 | `Unit` | Void substitute for command results |
 
-## Middlewares (`Cqrs.Middlewares`)
+## Middlewares (`Cqrs.Pipeline.Middlewares`)
 
 Typed middleware — each middleware is bound to a specific `(TRequest, TResult)` or `TEvent` pair and can read and modify the result.
 
@@ -44,10 +44,10 @@ Typed middleware — each middleware is bound to a specific `(TRequest, TResult)
 |---|---|
 | `IRequestMiddleware<TRequest, TResult>` | Wraps a single request type; `next` returns `Task<TResult>` |
 | `IEventMiddleware<TEvent>` | Wraps a single event type |
-| `MiddlewareDispatcher` | `IDispatcher` decorator applying `IRequestMiddleware` chain |
-| `MiddlewareEventDispatcher` | `IEventDispatcher` decorator applying `IEventMiddleware` chain |
+| `MiddlewareAwareDispatcher` | `IDispatcher` decorator applying `IRequestMiddleware` chain |
+| `MiddlewareAwareEventDispatcher` | `IEventDispatcher` decorator applying `IEventMiddleware` chain |
 
-## Pipelines (`Cqrs.Pipelines`)
+## Pipelines (`Cqrs.Pipeline.Behaviours`)
 
 Non-generic cross-cutting behaviours — apply to every request or event regardless of type.
 
@@ -55,8 +55,8 @@ Non-generic cross-cutting behaviours — apply to every request or event regardl
 |---|---|
 | `IRequestPipelineBehaviour` | Applied to all requests; `next` returns `Task<object?>` |
 | `IEventPipelineBehaviour` | Applied to all events |
-| `PipelineDispatcher` | `IDispatcher` decorator applying `IRequestPipelineBehaviour` chain |
-| `PipelineEventDispatcher` | `IEventDispatcher` decorator applying `IEventPipelineBehaviour` chain |
+| `BehaviourAwareDispatcher` | `IDispatcher` decorator applying `IRequestPipelineBehaviour` chain |
+| `BehaviourAwareEventDispatcher` | `IEventDispatcher` decorator applying `IEventPipelineBehaviour` chain |
 
 ## Usage
 
@@ -102,7 +102,7 @@ public class ValidationMiddleware : IRequestMiddleware<CreateOrderCommand, Unit>
     }
 }
 
-IDispatcher dispatcher = new MiddlewareDispatcher(new Dispatcher(sp), sp);
+IDispatcher dispatcher = new MiddlewareAwareDispatcher(new Dispatcher(sp), sp);
 ```
 
 ### Adding a pipeline behaviour
@@ -121,7 +121,7 @@ public class LoggingBehaviour : IRequestPipelineBehaviour
     }
 }
 
-IDispatcher dispatcher = new PipelineDispatcher(new Dispatcher(sp), sp);
+IDispatcher dispatcher = new BehaviourAwareDispatcher(new Dispatcher(sp), sp);
 ```
 
 ## Build

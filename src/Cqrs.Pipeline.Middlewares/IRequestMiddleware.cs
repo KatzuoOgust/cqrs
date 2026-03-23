@@ -1,5 +1,5 @@
 using KatzuoOgust.Cqrs;
-namespace KatzuoOgust.Cqrs.Middlewares;
+namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 
 /// <summary>
 /// A pipeline behavior that wraps handler execution.

@@ -41,10 +41,10 @@ Strip `.Tests`, `.Core`, `.Abstractions` suffixes when setting `RootNamespace`. 
 | `Cqrs.Tests` | `KatzuoOgust.Cqrs` |
 | `Cqrs.Core` | `KatzuoOgust.Cqrs` |
 | `Cqrs.Abstractions` | `KatzuoOgust.Cqrs` |
-| `Cqrs.Middlewares` | `KatzuoOgust.Cqrs.Middlewares` |
-| `Cqrs.Pipelines` | `KatzuoOgust.Cqrs.Pipelines` |
+| `Cqrs.Pipeline.Middlewares` | `KatzuoOgust.Cqrs.Pipeline.Middlewares` |
+| `Cqrs.Pipeline.Behaviours` | `KatzuoOgust.Cqrs.Pipeline.Behaviours` |
 
-Projects in `Cqrs.Middlewares` and `Cqrs.Pipelines` must add `using KatzuoOgust.Cqrs;` to reference core types.
+Projects in `Cqrs.Pipeline.Middlewares` and `Cqrs.Pipeline.Behaviours` must add `using KatzuoOgust.Cqrs;` to reference core types.
 
 ## Adding a new abstraction
 

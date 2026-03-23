@@ -1,8 +1,7 @@
-using KatzuoOgust.Cqrs.Middlewares;
-using KatzuoOgust.Cqrs.Pipelines;
-namespace KatzuoOgust.Cqrs;
+using KatzuoOgust.Cqrs;
+namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 
-public sealed class PipelineDispatcherTests
+public sealed class BehaviourAwareDispatcherTests
 {
 	// -----------------------------------------------------------------------
 	// Fixtures
@@ -55,7 +54,7 @@ public sealed class PipelineDispatcherTests
 		var sp = new SimpleServiceProvider();
 		sp.Register<ICommandHandler<AddCommand, int>>(new AddHandler());
 
-		var result = await new PipelineDispatcher(new Dispatcher(sp), sp).InvokeAsync(new AddCommand(3, 4));
+		var result = await new BehaviourAwareDispatcher(new Dispatcher(sp), sp).InvokeAsync(new AddCommand(3, 4));
 
 		Assert.Equal(7, result);
 	}
@@ -68,7 +67,7 @@ public sealed class PipelineDispatcherTests
 		sp.Register<ICommandHandler<AddCommand, int>>(new AddHandler());
 		sp.Register<IEnumerable<IRequestPipelineBehaviour>>([new LoggingBehaviour(log, "b")]);
 
-		var result = await new PipelineDispatcher(new Dispatcher(sp), sp).InvokeAsync(new AddCommand(2, 3));
+		var result = await new BehaviourAwareDispatcher(new Dispatcher(sp), sp).InvokeAsync(new AddCommand(2, 3));
 
 		Assert.Equal(5, result);
 		Assert.Equal(["b:before", "b:after"], log);
@@ -85,7 +84,7 @@ public sealed class PipelineDispatcherTests
 			new LoggingBehaviour(log, "b1"),
 		]);
 
-		await new PipelineDispatcher(new Dispatcher(sp), sp).InvokeAsync(new AddCommand(1, 1));
+		await new BehaviourAwareDispatcher(new Dispatcher(sp), sp).InvokeAsync(new AddCommand(1, 1));
 
 		Assert.Equal(["b0:before", "b1:before", "b1:after", "b0:after"], log);
 	}
@@ -99,7 +98,7 @@ public sealed class PipelineDispatcherTests
 		sp.Register<ICommandHandler<PingCommand>>(handler);
 		sp.Register<IEnumerable<IRequestPipelineBehaviour>>([new LoggingBehaviour(log, "b")]);
 
-		await new PipelineDispatcher(new Dispatcher(sp), sp).InvokeAsync(new PingCommand());
+		await new BehaviourAwareDispatcher(new Dispatcher(sp), sp).InvokeAsync(new PingCommand());
 
 		Assert.True(handler.Invoked);
 		Assert.Equal(["b:before", "b:after"], log);
@@ -113,7 +112,7 @@ public sealed class PipelineDispatcherTests
 		sp.Register<ICommandHandler<AddCommand, int>>(new AddHandler());
 		sp.Register<IEnumerable<IRequestPipelineBehaviour>>([new CapturingBehaviour(r => captured = r)]);
 
-		await new PipelineDispatcher(new Dispatcher(sp), sp).InvokeAsync(new AddCommand(1, 2));
+		await new BehaviourAwareDispatcher(new Dispatcher(sp), sp).InvokeAsync(new AddCommand(1, 2));
 
 		Assert.IsType<AddCommand>(captured);
 	}
@@ -122,7 +121,7 @@ public sealed class PipelineDispatcherTests
 	public async Task InvokeAsync_NullRequest_ThrowsArgumentNullException()
 	{
 		await Assert.ThrowsAsync<ArgumentNullException>(
-			() => new PipelineDispatcher(new Dispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())
+			() => new BehaviourAwareDispatcher(new Dispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())
 				.InvokeAsync<Unit>(null!));
 	}
 

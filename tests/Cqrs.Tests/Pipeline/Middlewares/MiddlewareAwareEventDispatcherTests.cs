@@ -1,8 +1,7 @@
-using KatzuoOgust.Cqrs.Middlewares;
-using KatzuoOgust.Cqrs.Pipelines;
-namespace KatzuoOgust.Cqrs;
+using KatzuoOgust.Cqrs;
+namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 
-public sealed class MiddlewareEventDispatcherTests
+public sealed class MiddlewareAwareEventDispatcherTests
 {
 	// -----------------------------------------------------------------------
 	// Fixtures
@@ -51,7 +50,7 @@ public sealed class MiddlewareEventDispatcherTests
 		var sp = new SimpleServiceProvider();
 		sp.Register<IEnumerable<IEventHandler<OrderPlacedEvent>>>([handler]);
 
-		await new MiddlewareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderPlacedEvent(1));
+		await new MiddlewareAwareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderPlacedEvent(1));
 
 		Assert.Equal([1], handler.Received);
 	}
@@ -65,7 +64,7 @@ public sealed class MiddlewareEventDispatcherTests
 		sp.Register<IEnumerable<IEventHandler<OrderPlacedEvent>>>([handler]);
 		sp.Register<IEnumerable<IEventMiddleware<OrderPlacedEvent>>>([new LoggingMiddleware(log, "m")]);
 
-		await new MiddlewareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderPlacedEvent(42));
+		await new MiddlewareAwareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderPlacedEvent(42));
 
 		Assert.Equal([42], handler.Received);
 		Assert.Equal(["m:before", "m:after"], log);
@@ -82,7 +81,7 @@ public sealed class MiddlewareEventDispatcherTests
 			new LoggingMiddleware(log, "m1"),
 		]);
 
-		await new MiddlewareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderPlacedEvent(1));
+		await new MiddlewareAwareEventDispatcher(MakeDispatcher(sp), sp).DispatchAsync(new OrderPlacedEvent(1));
 
 		Assert.Equal(["m0:before", "m1:before", "m1:after", "m0:after"], log);
 	}
@@ -91,7 +90,7 @@ public sealed class MiddlewareEventDispatcherTests
 	public async Task DispatchAsync_NullEvent_ThrowsArgumentNullException()
 	{
 		await Assert.ThrowsAsync<ArgumentNullException>(
-			() => new MiddlewareEventDispatcher(MakeDispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())
+			() => new MiddlewareAwareEventDispatcher(MakeDispatcher(new SimpleServiceProvider()), new SimpleServiceProvider())
 				.DispatchAsync<OrderPlacedEvent>(null!));
 	}
 
@@ -101,7 +100,7 @@ public sealed class MiddlewareEventDispatcherTests
 		var handler = new TrackingHandler();
 		var sp = new SimpleServiceProvider();
 		sp.Register<IEnumerable<IEventHandler<OrderPlacedEvent>>>([handler]);
-		var dispatcher = new MiddlewareEventDispatcher(MakeDispatcher(sp), sp);
+		var dispatcher = new MiddlewareAwareEventDispatcher(MakeDispatcher(sp), sp);
 
 		await dispatcher.DispatchAsync(new OrderPlacedEvent(1));
 		await dispatcher.DispatchAsync(new OrderPlacedEvent(2));

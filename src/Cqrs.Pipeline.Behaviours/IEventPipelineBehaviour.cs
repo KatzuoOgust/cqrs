@@ -1,6 +1,6 @@
 using KatzuoOgust.Cqrs;
 
-namespace KatzuoOgust.Cqrs.Pipelines;
+namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 
 /// <summary>
 /// A cross-cutting pipeline behaviour applied to every event publication.

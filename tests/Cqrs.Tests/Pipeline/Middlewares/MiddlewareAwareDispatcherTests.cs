@@ -1,8 +1,7 @@
-using KatzuoOgust.Cqrs.Middlewares;
-using KatzuoOgust.Cqrs.Pipelines;
-namespace KatzuoOgust.Cqrs;
+using KatzuoOgust.Cqrs;
+namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 
-public sealed class MiddlewareDispatcherTests
+public sealed class MiddlewareAwareDispatcherTests
 {
 	// -----------------------------------------------------------------------
 	// Fixtures
@@ -69,7 +68,7 @@ public sealed class MiddlewareDispatcherTests
 		var sp = new SimpleServiceProvider();
 		sp.Register<ICommandHandler<AddCommand, int>>(new AddHandler());
 
-		var dispatcher = new MiddlewareDispatcher(new Dispatcher(sp), sp);
+		var dispatcher = new MiddlewareAwareDispatcher(new Dispatcher(sp), sp);
 
 		Assert.Equal(7, await dispatcher.InvokeAsync(new AddCommand(3, 4)));
 	}
@@ -82,7 +81,7 @@ public sealed class MiddlewareDispatcherTests
 		sp.Register<IEnumerable<IRequestMiddleware<AddCommand, int>>>(
 			[new MultiplierMiddleware([], "p", factor: 10)]);
 
-		var result = await new MiddlewareDispatcher(new Dispatcher(sp), sp)
+		var result = await new MiddlewareAwareDispatcher(new Dispatcher(sp), sp)
 			.InvokeAsync(new AddCommand(2, 3)); // (2+3)*10
 
 		Assert.Equal(50, result);
@@ -102,7 +101,7 @@ public sealed class MiddlewareDispatcherTests
 			new MultiplierMiddleware(log, "p1", factor: 2),
 		]);
 
-		var result = await new MiddlewareDispatcher(new Dispatcher(sp), sp)
+		var result = await new MiddlewareAwareDispatcher(new Dispatcher(sp), sp)
 			.InvokeAsync(new AddCommand(2, 3));
 
 		Assert.Equal(100, result);
@@ -117,7 +116,7 @@ public sealed class MiddlewareDispatcherTests
 		sp.Register<IEnumerable<IRequestMiddleware<MultiplyQuery, int>>>(
 			[new Doubling()]);
 
-		var result = await new MiddlewareDispatcher(new Dispatcher(sp), sp)
+		var result = await new MiddlewareAwareDispatcher(new Dispatcher(sp), sp)
 			.InvokeAsync(new MultiplyQuery(3, 4)); // 3*4=12, doubled=24
 
 		Assert.Equal(24, result);
@@ -132,7 +131,7 @@ public sealed class MiddlewareDispatcherTests
 		sp.Register<ICommandHandler<LogCommand>>(handler);
 		sp.Register<IEnumerable<IRequestMiddleware<LogCommand, Unit>>>([pipeline]);
 
-		await new MiddlewareDispatcher(new Dispatcher(sp), sp)
+		await new MiddlewareAwareDispatcher(new Dispatcher(sp), sp)
 			.InvokeAsync(new LogCommand());
 
 		Assert.True(handler.Invoked);
@@ -145,7 +144,7 @@ public sealed class MiddlewareDispatcherTests
 		var sp = new SimpleServiceProvider();
 		sp.Register<ICommandHandler<AddCommand, int>>(new AddHandler());
 
-		var dispatcher = new MiddlewareDispatcher(new Dispatcher(sp), sp);
+		var dispatcher = new MiddlewareAwareDispatcher(new Dispatcher(sp), sp);
 		Assert.Equal(5, await dispatcher.InvokeAsync(new AddCommand(2, 3)));
 		Assert.Equal(9, await dispatcher.InvokeAsync(new AddCommand(4, 5)));
 	}
