@@ -3,6 +3,7 @@ namespace KatzuoOgust.Cqrs;
 public sealed partial class DispatcherTests
 {
 	private sealed record EchoCommand(string Text) : ICommand<string>;
+
 	private sealed record LengthQuery(string Text) : IQuery<int>;
 
 	private sealed class EchoHandler : ICommandHandler<EchoCommand, string>

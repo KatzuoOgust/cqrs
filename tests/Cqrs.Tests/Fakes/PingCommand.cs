@@ -1,3 +1,4 @@
+// ReSharper disable CheckNamespace
 namespace KatzuoOgust.Cqrs;
 
 internal sealed record PingCommand : ICommand;

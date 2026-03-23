@@ -2,7 +2,6 @@ namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 
 public sealed partial class BehaviourAwareEventDispatcherTests
 {
-
 	[Fact]
 	public async Task DispatchAsync_PassesThroughToHandler_WhenNoBehaviours()
 	{

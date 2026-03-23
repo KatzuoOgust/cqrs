@@ -1,4 +1,4 @@
-namespace KatzuoOgust.Cqrs.Examples;
+namespace KatzuoOgust.Cqrs.Examples.Infrastructure;
 
 /// <summary>
 /// Minimal service provider for examples — no external DI framework required.

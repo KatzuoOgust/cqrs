@@ -98,7 +98,7 @@ public sealed partial class DecoratingServiceProviderTests
 		sp.Register<IFoo>(new Foo("a"));
 
 		var result = new DecoratingServiceProvider(sp)
-			.Decorate(typeof(IBar<>), (_, inner, _) => throw new InvalidOperationException("should not be called"))
+			.Decorate(typeof(IBar<>), (_, _, _) => throw new InvalidOperationException("should not be called"))
 			.GetService(typeof(IFoo));
 
 		Assert.IsType<Foo>(result);
@@ -145,7 +145,6 @@ public sealed partial class DecoratingServiceProviderTests
 	{
 		var sp = new SimpleServiceProvider();
 		sp.Register<IBar<int>>(new Bar<int>(7));
-		var log = new List<int>();
 
 		Func<Type, object, IServiceProvider, object> wrap = (type, inner, _) =>
 		{
@@ -212,7 +211,7 @@ public sealed partial class DecoratingServiceProviderTests
 		var result = new DecoratingServiceProvider(sp)
 			.When(
 				_ => false,
-				d => d.Decorate(typeof(IBar<>), (_, inner, _) => throw new InvalidOperationException("should not apply")))
+				d => d.Decorate(typeof(IBar<>), (_, _, _) => throw new InvalidOperationException("should not apply")))
 			.GetService(typeof(IBar<int>));
 
 		Assert.IsType<Bar<int>>(result);
@@ -373,7 +372,7 @@ public sealed partial class DecoratingServiceProviderTests
 			.GetService(typeof(IBar<int>));
 
 		Assert.IsType<WrappedBar<int>>(result);
-		Assert.Equal(42, result!.Value);
+		Assert.Equal(42, result.Value);
 	}
 
 	[Fact]
