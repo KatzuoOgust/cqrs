@@ -1,3 +1,5 @@
+using KatzuoOgust.Cqrs.DependencyInjection;
+
 namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 
 public sealed partial class MiddlewareAwareDispatcherTests

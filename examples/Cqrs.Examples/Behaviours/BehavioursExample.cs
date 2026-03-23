@@ -1,4 +1,4 @@
-using KatzuoOgust.Cqrs.Examples.Infrastructure;
+using KatzuoOgust.Cqrs.DependencyInjection;
 using KatzuoOgust.Cqrs.Pipeline.Behaviours;
 using KatzuoOgust.Cqrs.Pipeline.Middlewares;
 

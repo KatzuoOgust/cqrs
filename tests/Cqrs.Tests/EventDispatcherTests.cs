@@ -1,3 +1,5 @@
+using KatzuoOgust.Cqrs.DependencyInjection;
+
 namespace KatzuoOgust.Cqrs;
 
 public sealed partial class EventDispatcherTests

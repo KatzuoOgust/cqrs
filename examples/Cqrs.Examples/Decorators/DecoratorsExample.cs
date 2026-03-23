@@ -1,5 +1,5 @@
+using KatzuoOgust.Cqrs.DependencyInjection;
 using KatzuoOgust.Cqrs.DependencyInjection.Decoration;
-using KatzuoOgust.Cqrs.Examples.Infrastructure;
 
 namespace KatzuoOgust.Cqrs.Examples.Decorators;
 

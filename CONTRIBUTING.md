@@ -104,10 +104,11 @@ Shared fakes live in `tests/Cqrs.Tests/Fakes/` with namespace `KatzuoOgust.Cqrs`
 
 ```
 tests/Cqrs.Tests/Fakes/
-  SimpleServiceProvider.cs   ← internal sealed class SimpleServiceProvider
   PingCommand.cs             ← internal sealed record PingCommand + PingHandler
   AddCommand.cs              ← internal sealed record AddCommand
 ```
+
+`SimpleServiceProvider` lives in `src/Cqrs.DependencyInjection/` (`public sealed class`, namespace `KatzuoOgust.Cqrs.DependencyInjection`). Test files outside that namespace must add `using KatzuoOgust.Cqrs.DependencyInjection;`.
 
 ## Namespace policy
 

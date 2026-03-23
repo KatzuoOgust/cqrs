@@ -1,3 +1,5 @@
+using KatzuoOgust.Cqrs.DependencyInjection;
+
 namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 
 public sealed partial class BehaviourAwareEventDispatcherTests
