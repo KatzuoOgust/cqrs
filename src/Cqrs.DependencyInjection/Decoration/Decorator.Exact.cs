@@ -16,7 +16,7 @@ public abstract partial class Decorator
 	/// </summary>
 	public static Decorator Exact<TService>(Func<TService, TService> factory)
 		where TService : class =>
-		new ExactDecorator<TService>(factory);
+		new ExactDecorator<TService>((svc, _) => factory(svc));
 
 	/// <summary>
 	/// Creates a descriptor that wraps <paramref name="serviceType"/> with <paramref name="decoratorType"/>.
@@ -34,18 +34,11 @@ public abstract partial class Decorator
 			=> st == serviceType ? factory(service, sp) : null;
 	}
 
-	private sealed class ExactDecorator<TService> : Decorator
+	private sealed class ExactDecorator<TService>(
+		Func<TService, IServiceProvider, TService> factory) : Decorator
 		where TService : class
 	{
-		private readonly Func<TService, IServiceProvider, TService> _factory;
-
-		public ExactDecorator(Func<TService, IServiceProvider, TService> factory)
-			=> _factory = factory;
-
-		public ExactDecorator(Func<TService, TService> factory)
-			: this((svc, _) => factory(svc)) { }
-
 		public override object? TryApply(Type serviceType, Type? openServiceType, object service, IServiceProvider sp)
-			=> serviceType == typeof(TService) ? _factory((TService)service, sp) : null;
+			=> serviceType == typeof(TService) ? factory((TService)service, sp) : null;
 	}
 }

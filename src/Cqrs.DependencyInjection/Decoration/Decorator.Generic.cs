@@ -22,7 +22,7 @@ public abstract partial class Decorator
 	public static Decorator Generic(
 		Type openGenericServiceType,
 		Func<Type, object, object> factory) =>
-		new GenericDecorator(openGenericServiceType, factory);
+		new GenericDecorator(openGenericServiceType, (svcType, svc, _) => factory(svcType, svc));
 
 	/// <summary>
 	/// Creates a descriptor for open-generic decoration. Whenever a closed type whose open-generic
@@ -41,9 +41,6 @@ public abstract partial class Decorator
 		Func<Type, object, IServiceProvider, object> factory)
 		: Decorator
 	{
-		public GenericDecorator(Type openGenericServiceType, Func<Type, object, object> factory)
-			: this(openGenericServiceType, (type, svc, _) => factory(type, svc)) { }
-
 		public GenericDecorator(Type openGenericServiceType, Type openDecoratorType)
 			: this(openGenericServiceType, BuildCachingFactory(openDecoratorType)) { }
 
