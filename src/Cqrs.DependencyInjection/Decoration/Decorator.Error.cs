@@ -19,9 +19,10 @@ public abstract partial class Decorator
 
 		internal static void ThrowIfDecoratorDoesNotImplementService(Type serviceType, Type decoratorType)
 		{
-			if (!serviceType.IsAssignableFrom(decoratorType))
-				throw new InvalidOperationException(
-					$"'{decoratorType}' does not implement or extend '{serviceType}' and cannot be used as its decorator.");
+			if (serviceType.IsAssignableFrom(decoratorType)) return;
+
+			throw new InvalidOperationException(
+				$"'{decoratorType}' does not implement or extend '{serviceType}' and cannot be used as its decorator.");
 		}
 
 		internal static InvalidOperationException NoSuitableConstructor(Type serviceType, Type decoratorType) =>
