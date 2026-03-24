@@ -226,7 +226,7 @@ public sealed partial class DecoratingServiceProviderTests
 			.When(
 				_ => true,
 				d => d.Decorate<IFoo>((inner, _) => { order.Add("first"); return inner; })
-				      .Decorate<IFoo>((inner, _) => { order.Add("second"); return inner; }))
+					  .Decorate<IFoo>((inner, _) => { order.Add("second"); return inner; }))
 			.GetService(typeof(IFoo));
 
 		Assert.Equal(["first", "second"], order);

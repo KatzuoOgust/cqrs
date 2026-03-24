@@ -6,5 +6,5 @@ namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 /// </summary>
 public interface IRequestPipelineBehaviour
 {
-	Task<object?> HandleAsync(IRequest request, CancellationToken ct, Func<CancellationToken, Task<object?>> next);
+	public Task<object?> HandleAsync(IRequest request, CancellationToken ct, Func<CancellationToken, Task<object?>> next);
 }

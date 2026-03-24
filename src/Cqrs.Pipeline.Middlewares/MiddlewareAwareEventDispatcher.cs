@@ -25,10 +25,10 @@ public sealed class MiddlewareAwareEventDispatcher(IEventDispatcher inner, IServ
 	{
 		var invokerType = typeof(Invoker<>).MakeGenericType(eventType);
 
-		var sp  = Expression.Parameter(typeof(IServiceProvider), "sp");
+		var sp = Expression.Parameter(typeof(IServiceProvider), "sp");
 		var bus = Expression.Parameter(typeof(IEventDispatcher), "bus");
 		var evt = Expression.Parameter(typeof(object), "evt");
-		var ct  = Expression.Parameter(typeof(CancellationToken), "ct");
+		var ct = Expression.Parameter(typeof(CancellationToken), "ct");
 
 		var body = Expression.Call(
 			invokerType.GetMethod("InvokeAsync")!,

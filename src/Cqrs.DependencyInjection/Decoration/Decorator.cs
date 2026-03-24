@@ -100,8 +100,8 @@ public abstract partial class Decorator
 		static Func<object, IServiceProvider, object> CompileStrategy1(Type serviceType, ConstructorInfo ctor2)
 		{
 			var svcParam = Expression.Parameter(typeof(object), "svc");
-			var spParam  = Expression.Parameter(typeof(IServiceProvider), "sp");
-			var castSvc  = Expression.Convert(svcParam, serviceType);
+			var spParam = Expression.Parameter(typeof(IServiceProvider), "sp");
+			var castSvc = Expression.Convert(svcParam, serviceType);
 
 			var body = Expression.Convert(Expression.New(ctor2, castSvc, spParam), typeof(object));
 			return Expression.Lambda<Func<object, IServiceProvider, object>>(body, svcParam, spParam).Compile();
@@ -110,8 +110,8 @@ public abstract partial class Decorator
 		static Func<object, IServiceProvider, object> CompileStrategy2(Type serviceType, ConstructorInfo ctor1)
 		{
 			var svcParam = Expression.Parameter(typeof(object), "svc");
-			var spParam  = Expression.Parameter(typeof(IServiceProvider), "sp");
-			var castSvc  = Expression.Convert(svcParam, serviceType);
+			var spParam = Expression.Parameter(typeof(IServiceProvider), "sp");
+			var castSvc = Expression.Convert(svcParam, serviceType);
 
 			var body = Expression.Convert(Expression.New(ctor1, castSvc), typeof(object));
 			return Expression.Lambda<Func<object, IServiceProvider, object>>(body, svcParam, spParam).Compile();
@@ -120,8 +120,8 @@ public abstract partial class Decorator
 		static Func<object, IServiceProvider, object> CompileStrategy3(Type serviceType, ConstructorInfo ctor, ParameterInfo[] parameters)
 		{
 			var svcParam = Expression.Parameter(typeof(object), "svc");
-			var spParam  = Expression.Parameter(typeof(IServiceProvider), "sp");
-			var castSvc  = Expression.Convert(svcParam, serviceType);
+			var spParam = Expression.Parameter(typeof(IServiceProvider), "sp");
+			var castSvc = Expression.Convert(svcParam, serviceType);
 
 			var getService = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService))!;
 

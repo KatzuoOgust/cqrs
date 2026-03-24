@@ -152,7 +152,7 @@ public sealed class CqrsInterfaceAnalyzer : DiagnosticAnalyzer
 		params object?[] messageArgs)
 	{
 		var location = FindBaseTypeSyntaxLocation(typeDecl, iface, ctx.SemanticModel)
-					   ?? typeSymbol.Locations[0];
+			?? typeSymbol.Locations[0];
 		ctx.ReportDiagnostic(Diagnostic.Create(descriptor, location, messageArgs));
 	}
 

@@ -6,5 +6,5 @@ namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 /// </summary>
 public interface IEventPipelineBehaviour
 {
-	Task HandleAsync(IEvent @event, CancellationToken ct, Func<CancellationToken, Task> next);
+	public Task HandleAsync(IEvent @event, CancellationToken ct, Func<CancellationToken, Task> next);
 }

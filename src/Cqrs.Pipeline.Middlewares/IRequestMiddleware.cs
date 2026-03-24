@@ -7,5 +7,5 @@ namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 public interface IRequestMiddleware<TRequest, TResult>
 	where TRequest : IRequest<TResult>
 {
-	Task<TResult> HandleAsync(TRequest request, CancellationToken ct, Func<CancellationToken, Task<TResult>> next);
+	public Task<TResult> HandleAsync(TRequest request, CancellationToken ct, Func<CancellationToken, Task<TResult>> next);
 }

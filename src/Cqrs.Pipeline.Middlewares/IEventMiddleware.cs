@@ -7,5 +7,5 @@ namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 public interface IEventMiddleware<TEvent>
 	where TEvent : IEvent
 {
-	Task HandleAsync(TEvent @event, CancellationToken ct, Func<CancellationToken, Task> next);
+	public Task HandleAsync(TEvent @event, CancellationToken ct, Func<CancellationToken, Task> next);
 }
