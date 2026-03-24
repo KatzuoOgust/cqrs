@@ -10,10 +10,11 @@ public abstract partial class Decorator
 			Type type,
 			[CallerArgumentExpression(nameof(type))] string paramName = "")
 		{
-			if (!type.IsGenericTypeDefinition)
-				throw new ArgumentException(
-					$"'{type}' is not an open generic type definition.",
-					paramName);
+			if (type.IsGenericTypeDefinition) return;
+
+			throw new ArgumentException(
+				$"'{type}' is not an open generic type definition.",
+				paramName);
 		}
 
 		internal static void ThrowIfDecoratorDoesNotImplementService(Type serviceType, Type decoratorType)

@@ -134,10 +134,11 @@ public static class DecoratingServiceProviderExtensions
 			Type type,
 			[CallerArgumentExpression(nameof(type))] string paramName = "")
 		{
-			if (!type.IsGenericTypeDefinition)
-				throw new ArgumentException(
-					$"'{type}' is not an open generic type definition.",
-					paramName);
+			if (type.IsGenericTypeDefinition) return;
+
+			throw new ArgumentException(
+				$"'{type}' is not an open generic type definition.",
+				paramName);
 		}
 	}
 }
