@@ -11,6 +11,11 @@ public sealed class DecoratingServiceProvider : IServiceProvider
 	private readonly IServiceProvider _inner;
 	private readonly List<Decorator> _decorators = [];
 
+	/// <summary>
+	/// Initializes a new instance of <see cref="DecoratingServiceProvider"/>.
+	/// </summary>
+	/// <param name="inner">The underlying <see cref="IServiceProvider"/> to resolve services from.</param>
+	/// <exception cref="ArgumentNullException">Thrown when <paramref name="inner"/> is <see langword="null"/>.</exception>
 	public DecoratingServiceProvider(IServiceProvider inner)
 	{
 		ArgumentNullException.ThrowIfNull(inner);

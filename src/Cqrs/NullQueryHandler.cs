@@ -4,10 +4,12 @@ namespace KatzuoOgust.Cqrs;
 public sealed class NullQueryHandler<TQuery, TResponse> : IQueryHandler<TQuery, TResponse>
 	where TQuery : IQuery<TResponse>
 {
+	/// <summary>The shared singleton instance of <see cref="NullQueryHandler{TQuery,TResponse}"/>.</summary>
 	public static readonly NullQueryHandler<TQuery, TResponse> Instance = new();
 
 	private NullQueryHandler() { }
 
+	/// <inheritdoc/>
 	public Task<TResponse> HandleAsync(TQuery query, CancellationToken cancellationToken = default)
 		=> Task.FromResult<TResponse>(default!);
 }

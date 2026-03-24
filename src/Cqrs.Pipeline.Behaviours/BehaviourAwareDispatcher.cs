@@ -6,8 +6,13 @@ namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 /// Behaviours are resolved once per <see cref="InvokeAsync{TResult}"/> call and are invoked
 /// outermost-first. The actual dispatch result is captured via the terminal delegate.
 /// </summary>
+/// <param name="inner">The decorated <see cref="IDispatcher"/> that performs the actual dispatch.</param>
+/// <param name="serviceProvider">
+/// The service provider used to resolve <see cref="IRequestPipelineBehaviour"/> registrations.
+/// </param>
 public sealed class BehaviourAwareDispatcher(IDispatcher inner, IServiceProvider serviceProvider) : IDispatcher
 {
+	/// <inheritdoc/>
 	public async Task<TResult> InvokeAsync<TResult>(
 		IRequest<TResult> request,
 		CancellationToken cancellationToken = default)

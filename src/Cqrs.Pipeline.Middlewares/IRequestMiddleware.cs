@@ -7,5 +7,12 @@ namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 public interface IRequestMiddleware<TRequest, TResult>
 	where TRequest : IRequest<TResult>
 {
+	/// <summary>
+	/// Processes <paramref name="request"/> and delegates to <paramref name="next"/> to continue the chain.
+	/// </summary>
+	/// <param name="request">The request being dispatched.</param>
+	/// <param name="ct">A token to cancel the operation.</param>
+	/// <param name="next">The continuation delegate; must be called to continue the pipeline.</param>
+	/// <returns>The result produced by the pipeline or handler.</returns>
 	public Task<TResult> HandleAsync(TRequest request, CancellationToken ct, Func<CancellationToken, Task<TResult>> next);
 }

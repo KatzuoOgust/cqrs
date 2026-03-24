@@ -4,8 +4,13 @@ namespace KatzuoOgust.Cqrs.Pipeline.Behaviours;
 /// Decorates an <see cref="IEventDispatcher"/> so that every dispatched event passes through all registered
 /// <see cref="IEventPipelineBehaviour"/> instances before reaching the handlers.
 /// </summary>
+/// <param name="inner">The decorated <see cref="IEventDispatcher"/> that performs the actual dispatch.</param>
+/// <param name="serviceProvider">
+/// The service provider used to resolve <see cref="IEventPipelineBehaviour"/> registrations.
+/// </param>
 public sealed class BehaviourAwareEventDispatcher(IEventDispatcher inner, IServiceProvider serviceProvider) : IEventDispatcher
 {
+	/// <inheritdoc/>
 	public async Task DispatchAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
 		where TEvent : IEvent
 	{

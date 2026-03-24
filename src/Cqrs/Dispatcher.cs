@@ -19,12 +19,20 @@ public sealed class Dispatcher : IDispatcher, ICommandQueue
 	private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, object, CancellationToken, Task<object?>>>
 		_processorFactoryMap = new();
 
+	/// <summary>
+	/// Initializes a new instance of <see cref="Dispatcher"/>.
+	/// </summary>
+	/// <param name="serviceProvider">
+	/// The service provider used to resolve handler registrations.
+	/// </param>
+	/// <exception cref="ArgumentNullException">Thrown when <paramref name="serviceProvider"/> is <see langword="null"/>.</exception>
 	public Dispatcher(IServiceProvider serviceProvider)
 	{
 		ArgumentNullException.ThrowIfNull(serviceProvider);
 		_serviceProvider = serviceProvider;
 	}
 
+	/// <inheritdoc/>
 	public async Task<TResult> InvokeAsync<TResult>(
 		IRequest<TResult> request,
 		CancellationToken cancellationToken = default)
@@ -36,6 +44,7 @@ public sealed class Dispatcher : IDispatcher, ICommandQueue
 		return (TResult)(await invoke(_serviceProvider, request, cancellationToken))!;
 	}
 
+	/// <inheritdoc/>
 	public Task EnqueueAsync<TCommand>(TCommand command, CancellationToken cancellationToken = default)
 		where TCommand : ICommand =>
 		InvokeAsync(command, cancellationToken);

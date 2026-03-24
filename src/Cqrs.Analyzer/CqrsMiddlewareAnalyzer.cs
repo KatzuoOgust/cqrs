@@ -22,9 +22,11 @@ namespace KatzuoOgust.Cqrs.Analyzer;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CqrsMiddlewareAnalyzer : DiagnosticAnalyzer
 {
+	/// <inheritdoc/>
 	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 		ImmutableArray.Create(Diagnostics.Cqrs020, Diagnostics.Cqrs021);
 
+	/// <inheritdoc/>
 	public override void Initialize(AnalysisContext context)
 	{
 		context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);

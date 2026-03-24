@@ -7,11 +7,16 @@ namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 /// Wraps an <see cref="IDispatcher"/> so that every request runs through the registered
 /// <see cref="IRequestMiddleware{TRequest,TResult}"/> chain before reaching the actual handler.
 /// </summary>
+/// <param name="inner">The decorated <see cref="IDispatcher"/> that performs the actual dispatch.</param>
+/// <param name="serviceProvider">
+/// The service provider used to resolve <see cref="IRequestMiddleware{TRequest,TResult}"/> registrations.
+/// </param>
 public sealed class MiddlewareAwareDispatcher(IDispatcher inner, IServiceProvider serviceProvider) : IDispatcher
 {
 	private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, IDispatcher, object, CancellationToken, Task<object?>>>
 		_cache = new();
 
+	/// <inheritdoc/>
 	public async Task<TResult> InvokeAsync<TResult>(
 		IRequest<TResult> request,
 		CancellationToken cancellationToken = default)

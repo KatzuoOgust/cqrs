@@ -7,11 +7,16 @@ namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 /// Wraps an <see cref="IEventDispatcher"/> so that every dispatched event runs through the registered
 /// <see cref="IEventMiddleware{TEvent}"/> chain before reaching the actual handlers.
 /// </summary>
+/// <param name="inner">The decorated <see cref="IEventDispatcher"/> that performs the actual dispatch.</param>
+/// <param name="serviceProvider">
+/// The service provider used to resolve <see cref="IEventMiddleware{TEvent}"/> registrations.
+/// </param>
 public sealed class MiddlewareAwareEventDispatcher(IEventDispatcher inner, IServiceProvider serviceProvider) : IEventDispatcher
 {
 	private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, IEventDispatcher, object, CancellationToken, Task>>
 		_cache = new();
 
+	/// <inheritdoc/>
 	public Task DispatchAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
 		where TEvent : IEvent
 	{
