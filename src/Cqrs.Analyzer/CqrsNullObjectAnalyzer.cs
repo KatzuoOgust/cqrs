@@ -32,12 +32,9 @@ public sealed class CqrsNullObjectAnalyzer : DiagnosticAnalyzer
 
 		context.RegisterCompilationStartAction(compilationCtx =>
 		{
-			var iCmdHandlerT1 = compilationCtx.Compilation
-				.GetTypeByMetadataName("KatzuoOgust.Cqrs.ICommandHandler`1");
-			var iCmdHandlerT2 = compilationCtx.Compilation
-				.GetTypeByMetadataName("KatzuoOgust.Cqrs.ICommandHandler`2");
-			var iQueryHandler = compilationCtx.Compilation
-				.GetTypeByMetadataName("KatzuoOgust.Cqrs.IQueryHandler`2");
+			var iCmdHandlerT1 = compilationCtx.Compilation.GetICommandHandlerT1();
+			var iCmdHandlerT2 = compilationCtx.Compilation.GetICommandHandlerT2();
+			var iQueryHandler = compilationCtx.Compilation.GetIQueryHandlerT2();
 
 			if (iCmdHandlerT1 is null && iCmdHandlerT2 is null && iQueryHandler is null)
 				return;
@@ -142,8 +139,7 @@ public sealed class CqrsNullObjectAnalyzer : DiagnosticAnalyzer
 					.OfType<MethodDeclarationSyntax>()
 					.FirstOrDefault();
 
-				if (syntax is null)
-					continue;
+				if (syntax is null) continue;
 
 				yield return (iface, syntax, implMethod);
 			}
@@ -174,9 +170,9 @@ public sealed class CqrsNullObjectAnalyzer : DiagnosticAnalyzer
 
 		// Single return: return Task.CompletedTask;
 		return statements.Count == 1
-		       && statements[0] is ReturnStatementSyntax { Expression: var retExpr }
-		       && retExpr is not null
-		       && IsCompletedTaskAccess(retExpr);
+			&& statements[0] is ReturnStatementSyntax { Expression: var retExpr }
+			&& retExpr is not null
+			&& IsCompletedTaskAccess(retExpr);
 	}
 
 	/// <summary>
@@ -195,9 +191,9 @@ public sealed class CqrsNullObjectAnalyzer : DiagnosticAnalyzer
 		var statements = method.Body.Statements;
 
 		return statements.Count == 1
-		       && statements[0] is ReturnStatementSyntax { Expression: var retExpr }
-		       && retExpr is not null
-		       && IsDefaultBangExpression(retExpr);
+			&& statements[0] is ReturnStatementSyntax { Expression: var retExpr }
+			&& retExpr is not null
+			&& IsDefaultBangExpression(retExpr);
 	}
 
 	// ── Expression helpers ────────────────────────────────────────────────────
@@ -215,21 +211,17 @@ public sealed class CqrsNullObjectAnalyzer : DiagnosticAnalyzer
 	private static bool IsDefaultBangExpression(ExpressionSyntax expr)
 	{
 		// default!
-		if (IsSuppressedDefault(expr))
-			return true;
+		if (IsSuppressedDefault(expr)) return true;
 
 		// Task.FromResult(default!)  or  Task.FromResult<T>(default!)
-		if (expr is InvocationExpressionSyntax invocation
-		    && invocation.Expression is MemberAccessExpressionSyntax
-		    {
-			    Expression: IdentifierNameSyntax { Identifier.ValueText: "Task" },
-			    Name.Identifier.ValueText: "FromResult"
-		    }
-		    && invocation.ArgumentList.Arguments.Count == 1
-		    && IsSuppressedDefault(invocation.ArgumentList.Arguments[0].Expression))
-			return true;
-
-		return false;
+		return expr is InvocationExpressionSyntax invocation
+			&& invocation.Expression is MemberAccessExpressionSyntax
+			{
+				Expression: IdentifierNameSyntax { Identifier.ValueText: "Task" },
+				Name.Identifier.ValueText: "FromResult"
+			}
+			&& invocation.ArgumentList.Arguments.Count == 1
+			&& IsSuppressedDefault(invocation.ArgumentList.Arguments[0].Expression);
 	}
 
 	/// <summary>Matches <c>default!</c> — a null-forgiving operator applied to the <c>default</c> literal.</summary>

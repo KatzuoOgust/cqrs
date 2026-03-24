@@ -32,12 +32,9 @@ public sealed class CqrsMiddlewareAnalyzer : DiagnosticAnalyzer
 
 		context.RegisterCompilationStartAction(compilationCtx =>
 		{
-			var iMiddleware = compilationCtx.Compilation
-				.GetTypeByMetadataName("KatzuoOgust.Cqrs.Pipeline.Middlewares.IRequestMiddleware`2");
-			var iBehaviour = compilationCtx.Compilation
-				.GetTypeByMetadataName("KatzuoOgust.Cqrs.Pipeline.Behaviours.IRequestPipelineBehaviour");
-			var iRequest = compilationCtx.Compilation
-				.GetTypeByMetadataName("KatzuoOgust.Cqrs.IRequest");
+			var iMiddleware = compilationCtx.Compilation.GetIRequestMiddlewareT2();
+			var iBehaviour = compilationCtx.Compilation.GetIRequestPipelineBehaviour();
+			var iRequest = compilationCtx.Compilation.GetIRequest();
 
 			if (iMiddleware is null && iBehaviour is null)
 				return;
@@ -106,8 +103,8 @@ public sealed class CqrsMiddlewareAnalyzer : DiagnosticAnalyzer
 	{
 		// Only applies to IRequestPipelineBehaviour, which is non-generic, so we look for any cast to a specific IRequest<T> in the body
 		if (iBehaviour is null
-		    || iRequest is null
-		    || !typeSymbol.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, iBehaviour)))
+			|| iRequest is null
+			|| !typeSymbol.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, iBehaviour)))
 			return;
 
 		var implementation = FindHandleAsyncImplementations(ctx, typeSymbol, iBehaviour).FirstOrDefault();
@@ -169,7 +166,7 @@ public sealed class CqrsMiddlewareAnalyzer : DiagnosticAnalyzer
 			return true;
 		if (type is INamedTypeSymbol named)
 			return named.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, iRequest)
-			                                    || SymbolEqualityComparer.Default.Equals(i, iRequest));
+												|| SymbolEqualityComparer.Default.Equals(i, iRequest));
 		return false;
 	}
 
@@ -188,7 +185,7 @@ public sealed class CqrsMiddlewareAnalyzer : DiagnosticAnalyzer
 		{
 			var targetSymbol = semanticModel.GetSymbolInfo(memberAccess.Expression).Symbol;
 			if (SymbolEqualityComparer.Default.Equals(targetSymbol, nextParameter)
-			    && memberAccess.Name.Identifier.ValueText == "Invoke")
+				&& memberAccess.Name.Identifier.ValueText == "Invoke")
 				return true;
 		}
 
@@ -201,9 +198,13 @@ public sealed class CqrsMiddlewareAnalyzer : DiagnosticAnalyzer
 			INamedTypeSymbol typeSymbol,
 			INamedTypeSymbol openInterface)
 	{
-		foreach (var iface in typeSymbol.AllInterfaces.Where(i =>
-			         SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, openInterface)
-			         || SymbolEqualityComparer.Default.Equals(i, openInterface)))
+		var ifaces = typeSymbol.AllInterfaces
+			.Where(i =>
+				SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, openInterface)
+				|| SymbolEqualityComparer.Default.Equals(i, openInterface)
+			);
+
+		foreach (var iface in ifaces)
 		{
 			foreach (var ifaceMethod in iface.GetMembers("HandleAsync").OfType<IMethodSymbol>())
 			{
@@ -215,8 +216,7 @@ public sealed class CqrsMiddlewareAnalyzer : DiagnosticAnalyzer
 					.OfType<MethodDeclarationSyntax>()
 					.FirstOrDefault();
 
-				if (syntax is null)
-					continue;
+				if (syntax is null) continue;
 
 				yield return (iface, syntax, implMethod);
 			}

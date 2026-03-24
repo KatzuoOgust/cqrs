@@ -30,10 +30,10 @@ public sealed class CqrsInterfaceAnalyzer : DiagnosticAnalyzer
 
 		context.RegisterCompilationStartAction(compilationCtx =>
 		{
-			var iRequestOfT = compilationCtx.Compilation.GetTypeByMetadataName("KatzuoOgust.Cqrs.IRequest`1");
-			var iQueryOfT = compilationCtx.Compilation.GetTypeByMetadataName("KatzuoOgust.Cqrs.IQuery`1");
-			var iCmdHandlerT2 = compilationCtx.Compilation.GetTypeByMetadataName("KatzuoOgust.Cqrs.ICommandHandler`2");
-			var unit = compilationCtx.Compilation.GetTypeByMetadataName("KatzuoOgust.Cqrs.Unit");
+			var iRequestOfT = compilationCtx.Compilation.GetIRequestOfT();
+			var iQueryOfT = compilationCtx.Compilation.GetIQueryOfT();
+			var iCmdHandlerT2 = compilationCtx.Compilation.GetICommandHandlerT2();
+			var unit = compilationCtx.Compilation.GetUnit();
 
 			if (iRequestOfT is null && iQueryOfT is null && iCmdHandlerT2 is null)
 				return;
@@ -152,7 +152,7 @@ public sealed class CqrsInterfaceAnalyzer : DiagnosticAnalyzer
 		params object?[] messageArgs)
 	{
 		var location = FindBaseTypeSyntaxLocation(typeDecl, iface, ctx.SemanticModel)
-		               ?? typeSymbol.Locations[0];
+					   ?? typeSymbol.Locations[0];
 		ctx.ReportDiagnostic(Diagnostic.Create(descriptor, location, messageArgs));
 	}
 
@@ -172,7 +172,7 @@ public sealed class CqrsInterfaceAnalyzer : DiagnosticAnalyzer
 
 		foreach (var baseTypeSyntax in typeDecl.BaseList.Types)
 			if (model.GetSymbolInfo(baseTypeSyntax.Type).Symbol is INamedTypeSymbol sym
-			    && SymbolEqualityComparer.Default.Equals(sym.OriginalDefinition, targetOriginal))
+				&& SymbolEqualityComparer.Default.Equals(sym.OriginalDefinition, targetOriginal))
 				return baseTypeSyntax.GetLocation();
 
 		return null;
