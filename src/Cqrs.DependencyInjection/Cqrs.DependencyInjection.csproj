@@ -5,10 +5,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>KatzuoOgust.Cqrs.DependencyInjection</RootNamespace>
-    <Nullable>enable</Nullable>
     <PackageId>KatzuoOgust.Cqrs.DependencyInjection</PackageId>
     <Description>IServiceProvider decorator that layers exact and open-generic decorators over an existing container.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>

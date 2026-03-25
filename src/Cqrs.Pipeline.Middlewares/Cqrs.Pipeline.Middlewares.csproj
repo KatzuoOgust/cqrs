@@ -5,10 +5,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>KatzuoOgust.Cqrs.Pipeline.Middlewares</RootNamespace>
-    <Nullable>enable</Nullable>
     <PackageId>KatzuoOgust.Cqrs.Pipeline.Middlewares</PackageId>
     <Description>Typed per-request and per-event middleware for KatzuoOgust.Cqrs.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
