@@ -1,12 +1,51 @@
 # Cqrs
 
 <p align="center">
-  <img src="icon.svg" width="96" alt="Cqrs" />
+  <img src="icon.png" alt="Cqrs" width="96" />
 </p>
 
-![CI](https://github.com/KatzuoOgust/cqrs/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/KatzuoOgust/cqrs/actions/workflows/ci.yml/badge.svg)](https://github.com/KatzuoOgust/cqrs/actions/workflows/ci.yml)
+[![NuGet](https://img.shields.io/nuget/v/KatzuoOgust.Cqrs.svg)](https://www.nuget.org/packages/KatzuoOgust.Cqrs)
+[![NuGet](https://img.shields.io/nuget/v/KatzuoOgust.Cqrs.Pipeline.Middlewares.svg?label=KatzuoOgust.Cqrs.Pipeline.Middlewares)](https://www.nuget.org/packages/KatzuoOgust.Cqrs.Pipeline.Middlewares)
+[![NuGet](https://img.shields.io/nuget/v/KatzuoOgust.Cqrs.Pipeline.Behaviours.svg?label=KatzuoOgust.Cqrs.Pipeline.Behaviours)](https://www.nuget.org/packages/KatzuoOgust.Cqrs.Pipeline.Behaviours)
+[![NuGet](https://img.shields.io/nuget/v/KatzuoOgust.Cqrs.DependencyInjection.svg?label=KatzuoOgust.Cqrs.DependencyInjection)](https://www.nuget.org/packages/KatzuoOgust.Cqrs.DependencyInjection)
+[![NuGet](https://img.shields.io/nuget/v/KatzuoOgust.Cqrs.Analyzer.svg?label=KatzuoOgust.Cqrs.Analyzer)](https://www.nuget.org/packages/KatzuoOgust.Cqrs.Analyzer)
 
 Lightweight, framework-agnostic CQRS abstractions for .NET 10. Zero NuGet dependencies in the core library.
+
+## Installation
+
+```sh
+dotnet add package KatzuoOgust.Cqrs
+
+# optional add-ons
+dotnet add package KatzuoOgust.Cqrs.Pipeline.Middlewares   # typed per-request middleware
+dotnet add package KatzuoOgust.Cqrs.Pipeline.Behaviours    # non-generic cross-cutting behaviours
+dotnet add package KatzuoOgust.Cqrs.DependencyInjection    # handler decorator support
+dotnet add package KatzuoOgust.Cqrs.Analyzer               # compile-time CQRS rules
+```
+
+## Quick start
+
+```csharp
+// 1. Define a command and its handler
+public record CreateOrderCommand(Guid OrderId) : ICommand;
+
+public class CreateOrderHandler : ICommandHandler<CreateOrderCommand>
+{
+    public Task HandleAsync(CreateOrderCommand command, CancellationToken ct = default)
+    {
+        // ...
+        return Task.CompletedTask;
+    }
+}
+
+// 2. Dispatch
+IDispatcher dispatcher = new Dispatcher(serviceProvider);
+await dispatcher.InvokeAsync(new CreateOrderCommand(Guid.NewGuid()));
+```
+
+See [Usage](#usage) for queries, events, middleware, and the full pipeline stack.
 
 ## Packages
 

@@ -37,19 +37,23 @@ Fork the repo, create a branch from `main`, make your changes following the conv
 
 ## Workflow
 
-1. **Create a branch** from `main`:
+1. **Create a branch** from `main` — use `feature/<short-description>` for new features, `fix/<short-description>` for bug fixes:
 
    ```sh
-   git checkout -b my-feature
+   git checkout -b feature/null-event-handler
    ```
 
 2. **Make your changes.** Follow the design rules, naming conventions, and code style described below.
 
-3. **Build and test** after every meaningful change — run `make build && make test`.
+3. **Build, test, and format** after every meaningful change:
+
+   ```sh
+   make build && make test && make format
+   ```
 
 4. **Commit** with a clear, focused message. One concern per commit.
 
-5. **Push** and open a pull request against `main`. See [Pull requests](#pull-requests) for the checklist.
+5. **Push** and open a pull request against `main` with a short summary of what changed and why. See [Pull requests](#pull-requests) for the checklist.
 
 ## Repository layout
 
@@ -62,6 +66,12 @@ Fork the repo, create a branch from `main`, make your changes following the conv
 | `src/Cqrs.Analyzer/` | Roslyn analyzers enforcing CQRS usage rules (see `README.md` for diagnostic IDs) |
 | `tests/Cqrs.Tests/` | All tests — subdirectory mirrors the subject's namespace |
 | `examples/Cqrs.Examples/` | Runnable examples for all three pipeline layers |
+
+## Scope
+
+**In scope:** new abstractions and null-objects in `src/Cqrs/`, new middleware/behaviour types, new analyzer rules, test improvements, documentation.
+
+**Out of scope:** concrete dispatcher implementations (those belong in consumer packages), any `PackageReference` in `Cqrs.csproj`, breaking changes to public interfaces. If you're unsure whether a change is welcome, open an issue first.
 
 ## Design rules
 
@@ -98,6 +108,22 @@ Subject_Result_WhenCondition
 | **Condition** | `When…` scenario; omit if unconditional | `WhenRequestIsNull`, `WhenVoidCommand` |
 
 Result always comes **before** the condition. Use `When`, not `If`.
+
+```csharp
+// ✅ condition needed — disambiguates two null scenarios
+void InvokeAsync_ThrowsArgumentNullException_WhenRequestIsNull()
+void InvokeAsync_ThrowsArgumentNullException_WhenHandlerIsNull()
+
+// ✅ condition omitted — result is self-evident
+void HandleAsync_CompletesWithoutThrowing()
+void ReturnsUnit_WhenVoidCommand()
+
+// ❌ missing Subject
+void ThrowsArgumentNullException_WhenRequestIsNull()
+
+// ❌ uses If instead of When
+void InvokeAsync_ThrowsArgumentNullException_IfRequestIsNull()
+```
 
 ## Test fakes
 
@@ -145,7 +171,7 @@ Code style is enforced by `.editorconfig` at the repository root. Key settings:
 - **Line endings:** LF
 - **Namespaces:** file-scoped (`namespace Foo;`)
 
-Your editor should pick these up automatically. If it doesn't, run `dotnet format` before committing.
+Run `make format` before committing — it runs `dotnet format` and fixes everything automatically.
 
 ## Error helper pattern
 
@@ -187,6 +213,7 @@ throw Error.NoSuitableConstructor(serviceType, decoratorType);
 ## Pull requests
 
 - Keep changes focused — one concern per PR.
+- Include a short summary of what changed and why.
 - All tests must pass (`make test`).
 - New public API surface needs at least one test covering the happy path and one covering argument validation.
 - Update `README.md` if you add, remove, or change public types.

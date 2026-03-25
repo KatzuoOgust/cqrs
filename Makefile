@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help build test pack clean
+.PHONY: help build test pack clean format
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -18,3 +18,6 @@ pack: ## Pack NuGet packages to ./artifacts/nupkgs
 clean: ## Remove build artefacts (bin/obj/artifacts)
 	dotnet clean Cqrs.slnx
 	rm -rf artifacts
+
+format: ## Format source with dotnet format
+	dotnet format Cqrs.slnx
