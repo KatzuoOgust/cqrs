@@ -123,8 +123,19 @@ Strip `.Tests`, `.Core`, `.Abstractions` when deriving `RootNamespace`; keep all
 | `Cqrs.Pipeline.Middlewares` | `KatzuoOgust.Cqrs.Pipeline.Middlewares` |
 | `Cqrs.Pipeline.Behaviours` | `KatzuoOgust.Cqrs.Pipeline.Behaviours` |
 | `Cqrs.DependencyInjection` | `KatzuoOgust.Cqrs.DependencyInjection` |
+| `Cqrs.Analyzer` | `KatzuoOgust.Cqrs.Analyzer` |
 
 Add `using KatzuoOgust.Cqrs;` in any file under `Cqrs.Pipeline.*` that references core types.
+
+## Code style
+
+Code style is enforced by `.editorconfig` at the repository root. Key settings:
+
+- **Indentation:** tabs, width 4 (C#); spaces, width 2 (XML/project files)
+- **Line endings:** LF
+- **Namespaces:** file-scoped (`namespace Foo;`)
+
+Your editor should pick these up automatically. If it doesn't, run `dotnet format` before committing.
 
 ## Error helper pattern
 

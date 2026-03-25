@@ -48,6 +48,8 @@ Typed middleware — each middleware is bound to a specific `(TRequest, TResult)
 | `IEventMiddleware<TEvent>` | Wraps a single event type |
 | `MiddlewareAwareDispatcher` | `IDispatcher` decorator applying `IRequestMiddleware` chain |
 | `MiddlewareAwareEventDispatcher` | `IEventDispatcher` decorator applying `IEventMiddleware` chain |
+| `RequestMiddlewareDelegate<TResult>` | `next` delegate passed to `IRequestMiddleware<TRequest, TResult>.HandleAsync` |
+| `EventMiddlewareDelegate` | `next` delegate passed to `IEventMiddleware<TEvent>.HandleAsync` |
 
 Resolved as `IEnumerable<IRequestMiddleware<TRequest, TResult>>` — first registered is outermost.
 
@@ -61,6 +63,8 @@ Non-generic cross-cutting behaviours — apply to every request or event regardl
 | `IEventPipelineBehaviour` | Applied to all events |
 | `BehaviourAwareDispatcher` | `IDispatcher` decorator applying `IRequestPipelineBehaviour` chain |
 | `BehaviourAwareEventDispatcher` | `IEventDispatcher` decorator applying `IEventPipelineBehaviour` chain |
+| `RequestBehaviourDelegate` | `next` delegate passed to `IRequestPipelineBehaviour.HandleAsync` |
+| `EventBehaviourDelegate` | `next` delegate passed to `IEventPipelineBehaviour.HandleAsync` |
 
 Resolved as `IEnumerable<IRequestPipelineBehaviour>` — first registered is outermost.
 
@@ -68,6 +72,13 @@ Resolved as `IEnumerable<IRequestPipelineBehaviour>` — first registered is out
 
 `DecoratingServiceProvider` wraps any `IServiceProvider` and layers handler decorators at resolve time.
 `DecoratingServiceProviderExtensions` provides a fluent API over it.
+`SimpleServiceProvider` is a minimal `IServiceProvider` for tests and examples — no external DI framework required; supports exact-type and `IEnumerable<T>` resolution.
+
+| Type | Description |
+|---|---|
+| `SimpleServiceProvider` | Minimal `IServiceProvider` — `Register<T>` / `RegisterMany<T>` for tests and examples |
+| `DecoratingServiceProvider` | Wraps any `IServiceProvider`; layers decorators at resolve time |
+| `Decorator` | Abstract base class for constructor-injection decorators resolved by `DecoratingServiceProvider` |
 
 | Method | Description |
 |---|---|
@@ -218,7 +229,7 @@ make build   # dotnet build Cqrs.slnx
 make test    # dotnet test Cqrs.slnx
 ```
 
-Requires [.NET 10 SDK](https://dotnet.microsoft.com/download).
+Requires [.NET 10 SDK](https://dotnet.microsoft.com/download). See [CONTRIBUTING.md](CONTRIBUTING.md) for the full build/test/pack/clean workflow.
 
 ## Contributing
 
