@@ -54,6 +54,13 @@ Strip `.Tests` when deriving `RootNamespace`; keep all other suffixes.
 
 Add `using KatzuoOgust.Cqrs;` in any file under `Cqrs.Pipeline.*` that references core types.
 
+## Adding a new abstraction
+
+1. Add the interface in `src/Cqrs/` with a file-scoped `namespace KatzuoOgust.Cqrs;`.
+2. If a null-object makes sense, add `Null{Name}.cs` beside it — private constructor, static `Instance` property.
+3. Place tests under `tests/Cqrs.Tests/` in the subdirectory that matches the subject's namespace.
+4. Add a row to the table in `README.md`.
+
 ## Writing tests
 
 Test classes are named `{Subject}Tests`. Test methods follow **`Subject_Result_WhenCondition`** — result before condition, `When` not `If`, condition omitted if unconditional.

@@ -70,10 +70,6 @@ Resolved as `IEnumerable<IRequestPipelineBehaviour>` — first registered is out
 
 ## Handler decorators (`Cqrs.DependencyInjection`)
 
-`DecoratingServiceProvider` wraps any `IServiceProvider` and layers handler decorators at resolve time.
-`DecoratingServiceProviderExtensions` provides a fluent API over it.
-`SimpleServiceProvider` is a minimal `IServiceProvider` for tests and examples — no external DI framework required; supports exact-type and `IEnumerable<T>` resolution.
-
 | Type | Description |
 |---|---|
 | `SimpleServiceProvider` | Minimal `IServiceProvider` — `Register<T>` / `RegisterMany<T>` for tests and examples |

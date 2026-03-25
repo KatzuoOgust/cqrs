@@ -1,30 +1,55 @@
 # Contributing
 
-Thank you for your interest in contributing! This document covers the development workflow, design rules, and conventions you need to follow.
+Fork the repo, create a branch from `main`, make your changes following the conventions below, keep `make test` green throughout, and open a PR against `main`.
 
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - Any editor with C# support (VS Code + C# Dev Kit, Rider, Visual Studio)
 
-## Build & test
+## Getting started
 
-```sh
-make build   # dotnet build Cqrs.slnx
-make test    # dotnet test Cqrs.slnx
-make pack    # dotnet pack → ./artifacts/nupkgs (local smoke-check only)
-make clean   # remove bin/obj/artifacts
-```
+1. **Fork** the repository on GitHub, then clone your fork:
 
-Always build and run tests both before and after your changes:
+   ```sh
+   git clone https://github.com/<your-username>/cqrs.git
+   cd cqrs
+   ```
 
-```sh
-# Run a single test class
-dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTests"
+2. **Verify your setup** — build and run all tests before touching any code:
 
-# Run a single test method
-dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTests.HandleAsync_CompletesWithoutThrowing"
-```
+   ```sh
+   make build
+   make test
+   ```
+
+   Both commands must complete with no errors. If they don't, confirm that the .NET 10 SDK is on your `PATH` (`dotnet --version`).
+
+   To run a focused subset later:
+
+   ```sh
+   # Single test class
+   dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTests"
+
+   # Single test method
+   dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTests.HandleAsync_CompletesWithoutThrowing"
+   ```
+
+## Workflow
+
+1. **Create a branch** from `main`:
+
+   ```sh
+   git checkout -b my-feature
+   ```
+
+2. **Make your changes.** Follow the design rules, naming conventions, and code style described below.
+
+3. **Build and test** after every meaningful change — run `make build && make test`.
+
+4. **Commit** with a clear, focused message. One concern per commit.
+
+5. **Push** and open a pull request against `main`. See [Pull requests](#pull-requests) for the checklist.
 
 ## Repository layout
 
@@ -47,13 +72,6 @@ These invariants must never be broken:
 - **Void commands return `Unit`.** `ICommand` inherits `IRequest<Unit>`. Do not add a void overload of `IDispatcher.InvokeAsync`.
 - **Covariant type parameters.** Keep `out TResponse` on `IRequest<out TResponse>`, `ICommand<out TResponse>`, and `IQuery<out TResponse>`.
 - **`IEventBus` fans out; `IDispatcher` routes to one.** Do not conflate the two.
-
-## Adding a new abstraction
-
-1. Add the interface in `src/Cqrs/` with a file-scoped `namespace KatzuoOgust.Cqrs;`.
-2. If a null-object makes sense, add `Null{Name}.cs` beside it — private constructor, static `Instance` property.
-3. Place tests under `tests/Cqrs.Tests/` in the subdirectory that matches the subject's namespace.
-4. Add a row to the table in `README.md`.
 
 ## Naming conventions
 
@@ -91,18 +109,10 @@ Private fixture types (stubs, fakes, records, handler implementations) follow th
 | > 5 lines, specific to one test class | `{TestClass}.Fakes.cs` sibling file, same namespace, `partial` on the test class |
 | Used by two or more test classes | `tests/Cqrs.Tests/Fakes/` — `internal` top-level type, namespace `KatzuoOgust.Cqrs` |
 
-### Per-class fakes file
-
-Add `partial` to the test class declaration and create a sibling file:
-
 ```
 DispatcherTests.cs           ← partial sealed class DispatcherTests { … tests … }
 DispatcherTests.Fakes.cs     ← partial sealed class DispatcherTests { … fixtures … }
 ```
-
-### Shared fakes
-
-Shared fakes live in `tests/Cqrs.Tests/Fakes/` with namespace `KatzuoOgust.Cqrs`. Because all test namespaces are children of `KatzuoOgust.Cqrs`, types there are visible everywhere without a `using`.
 
 ```
 tests/Cqrs.Tests/Fakes/
