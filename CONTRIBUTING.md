@@ -216,4 +216,4 @@ throw Error.NoSuitableConstructor(serviceType, decoratorType);
 - Include a short summary of what changed and why.
 - All tests must pass (`make test`).
 - New public API surface needs at least one test covering the happy path and one covering argument validation.
-- Update `README.md` if you add, remove, or change public types.
+- Update `README.md` if you add, remove, or change public types or their behaviour.

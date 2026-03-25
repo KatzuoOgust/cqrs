@@ -60,7 +60,7 @@ Add `using KatzuoOgust.Cqrs;` in any file under `Cqrs.Pipeline.*` that reference
 1. Add the interface in `src/Cqrs/` with a file-scoped `namespace KatzuoOgust.Cqrs;`.
 2. If a null-object makes sense, add `Null{Name}.cs` beside it — private constructor, static `Instance` property.
 3. Place tests under `tests/Cqrs.Tests/` in the subdirectory that matches the subject's namespace.
-4. Add a row to the table in `README.md`.
+4. Update the relevant section description in `README.md`.
 
 ## Writing tests
 

@@ -59,65 +59,19 @@ See [Usage](#usage) for queries, events, middleware, and the full pipeline stack
 
 ## Core abstractions (`Cqrs`)
 
-| Type | Description |
-|---|---|
-| `IRequest` / `IRequest<TResponse>` | Base marker for all requests |
-| `ICommand` | Void command (returns `Unit`) |
-| `ICommand<TResponse>` | Command that returns a value |
-| `IQuery<TResponse>` | Read-only query |
-| `IEvent` | Domain event marker |
-| `ICommandHandler<TCommand>` | Handles a void command |
-| `ICommandHandler<TCommand, TResponse>` | Handles a valued command |
-| `IQueryHandler<TQuery, TResponse>` | Handles a query |
-| `IEventHandler<TEvent>` | Handles a domain event |
-| `IDispatcher` / `IDispatcherFactory` | Routes a request to its single handler |
-| `ICommandQueue` | Accepts void commands for deferred or immediate processing |
-| `IEventBus` / `IEventBusFactory` | Publishes an event to all handlers |
-| `IEventDispatcher` | Dispatches an event (delegates to `IEventBus`) |
-| `Dispatcher` | `IDispatcher` + `ICommandQueue` implementation (expression-compiled, cached) |
-| `EventDispatcher` | `IEventBus` + `IEventDispatcher` implementation (expression-compiled, cached) |
-| `NullCommandHandler<T>` | No-op singleton command handler |
-| `NullQueryHandler<T, TResponse>` | No-op singleton query handler |
-| `NullEventHandler<T>` | No-op singleton event handler |
-| `Unit` | Void substitute for command results |
+Mark commands with `ICommand` (void) or `ICommand<TResponse>` (valued), queries with `IQuery<TResponse>`, and events with `IEvent`. Implement the matching handler interface — `ICommandHandler<T>`, `IQueryHandler<T, TResponse>`, or `IEventHandler<T>` — then dispatch via `IDispatcher` or publish via `IEventBus`.
 
 ## Middlewares (`Cqrs.Pipeline.Middlewares`)
 
-Typed middleware — each middleware is bound to a specific `(TRequest, TResult)` or `TEvent` pair and can read and modify the result.
-
-| Type | Description |
-|---|---|
-| `IRequestMiddleware<TRequest, TResult>` | Wraps a single request type; `next` returns `Task<TResult>` |
-| `IEventMiddleware<TEvent>` | Wraps a single event type |
-| `MiddlewareAwareDispatcher` | `IDispatcher` decorator applying `IRequestMiddleware` chain |
-| `MiddlewareAwareEventDispatcher` | `IEventDispatcher` decorator applying `IEventMiddleware` chain |
-| `RequestMiddlewareDelegate<TResult>` | `next` delegate passed to `IRequestMiddleware<TRequest, TResult>.HandleAsync` |
-| `EventMiddlewareDelegate` | `next` delegate passed to `IEventMiddleware<TEvent>.HandleAsync` |
-
-Resolved as `IEnumerable<IRequestMiddleware<TRequest, TResult>>` — first registered is outermost.
+Implement `IRequestMiddleware<TRequest, TResult>` to wrap a specific request type (has full access to the typed result), or `IEventMiddleware<TEvent>` for events. Register as `IEnumerable<IRequestMiddleware<TRequest, TResult>>` — first registered is outermost. Wrap `Dispatcher` with `MiddlewareAwareDispatcher`.
 
 ## Behaviours (`Cqrs.Pipeline.Behaviours`)
 
-Non-generic cross-cutting behaviours — apply to every request or event regardless of type.
-
-| Type | Description |
-|---|---|
-| `IRequestPipelineBehaviour` | Applied to all requests; `next` returns `Task<object?>` |
-| `IEventPipelineBehaviour` | Applied to all events |
-| `BehaviourAwareDispatcher` | `IDispatcher` decorator applying `IRequestPipelineBehaviour` chain |
-| `BehaviourAwareEventDispatcher` | `IEventDispatcher` decorator applying `IEventPipelineBehaviour` chain |
-| `RequestBehaviourDelegate` | `next` delegate passed to `IRequestPipelineBehaviour.HandleAsync` |
-| `EventBehaviourDelegate` | `next` delegate passed to `IEventPipelineBehaviour.HandleAsync` |
-
-Resolved as `IEnumerable<IRequestPipelineBehaviour>` — first registered is outermost.
+Implement `IRequestPipelineBehaviour` to intercept every request regardless of type (`next` returns `Task<object?>`), or `IEventPipelineBehaviour` for events. Register as `IEnumerable<IRequestPipelineBehaviour>` — first registered is outermost. Wrap with `BehaviourAwareDispatcher`.
 
 ## Handler decorators (`Cqrs.DependencyInjection`)
 
-| Type | Description |
-|---|---|
-| `SimpleServiceProvider` | Minimal `IServiceProvider` — `Register<T>` / `RegisterMany<T>` for tests and examples |
-| `DecoratingServiceProvider` | Wraps any `IServiceProvider`; layers decorators at resolve time |
-| `Decorator` | Abstract base class for constructor-injection decorators resolved by `DecoratingServiceProvider` |
+`DecoratingServiceProvider` wraps any `IServiceProvider` and layers handler decorators at resolve time via `DecoratingServiceProviderExtensions`:
 
 | Method | Description |
 |---|---|
@@ -128,7 +82,7 @@ Resolved as `IEnumerable<IRequestPipelineBehaviour>` — first registered is out
 | `.Decorate(openServiceType, openDecoratorType)` | Open-generic type decorator; constructor resolved via Expression trees |
 | `.When(predicate, configure)` | Applies inner decorators only when predicate returns `true` |
 
-Decorators are applied in **registration order**: the first registered wraps the raw service, each subsequent one wraps the result of the previous, making the last registered the outermost call.
+Decorators are applied in **registration order** — first registered wraps the raw service, last registered is outermost.
 
 ## Usage
 
