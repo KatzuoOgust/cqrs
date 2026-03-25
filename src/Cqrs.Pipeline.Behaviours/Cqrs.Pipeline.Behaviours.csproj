@@ -8,11 +8,6 @@
     <RootNamespace>KatzuoOgust.Cqrs.Pipeline.Behaviours</RootNamespace>
     <PackageId>KatzuoOgust.Cqrs.Pipeline.Behaviours</PackageId>
     <Description>Non-generic cross-cutting pipeline behaviours for KatzuoOgust.Cqrs.</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
-  </ItemGroup>
 
 </Project>

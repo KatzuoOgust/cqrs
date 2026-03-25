@@ -4,11 +4,6 @@
     <RootNamespace>KatzuoOgust.Cqrs</RootNamespace>
     <PackageId>KatzuoOgust.Cqrs</PackageId>
     <Description>Lightweight, framework-agnostic CQRS abstractions for .NET. Zero NuGet dependencies.</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
-  </ItemGroup>
 
 </Project>

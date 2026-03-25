@@ -8,11 +8,6 @@
     <RootNamespace>KatzuoOgust.Cqrs.Pipeline.Middlewares</RootNamespace>
     <PackageId>KatzuoOgust.Cqrs.Pipeline.Middlewares</PackageId>
     <Description>Typed per-request and per-event middleware for KatzuoOgust.Cqrs.</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
-  </ItemGroup>
 
 </Project>
