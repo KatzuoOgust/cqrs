@@ -9,7 +9,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>KatzuoOgust.Cqrs.Pipeline.Behaviours</RootNamespace>
     <Nullable>enable</Nullable>
-    <IsPackable>true</IsPackable>
     <PackageId>KatzuoOgust.Cqrs.Pipeline.Behaviours</PackageId>
     <Description>Non-generic cross-cutting pipeline behaviours for KatzuoOgust.Cqrs.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>

@@ -1,0 +1,12 @@
+<Project>
+
+  <!-- Chain up to the root Directory.Build.props so shared metadata is inherited. -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <!-- Enable packaging and XML doc generation for all src/ projects. -->
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>

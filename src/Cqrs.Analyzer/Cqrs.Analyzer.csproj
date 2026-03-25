@@ -5,7 +5,6 @@
     <RootNamespace>KatzuoOgust.Cqrs.Analyzer</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <IsPackable>true</IsPackable>
     <PackageId>KatzuoOgust.Cqrs.Analyzer</PackageId>
     <Description>Roslyn analyzers for KatzuoOgust.Cqrs — enforce CQRS design rules at compile time.</Description>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>

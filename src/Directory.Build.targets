@@ -1,0 +1,20 @@
+<Project>
+
+  <!--
+    Derive FileVersion and AssemblyVersion from Version when -p:Version is passed.
+
+    The SDK sets FileVersion and AssemblyVersion from VersionPrefix, so passing only
+    -p:Version=1.2.3 leaves them pointing at the static VersionPrefix value.
+    This targets file runs after all props/project imports and corrects that.
+
+    FileVersion  — must be purely numeric (major.minor.patch.build); pre-release
+                   suffixes are stripped.
+    AssemblyVersion — major.0.0.0 so binary references survive minor/patch bumps.
+  -->
+  <PropertyGroup>
+    <_VersionCore>$([System.Text.RegularExpressions.Regex]::Match($(Version), '^\d+\.\d+\.\d+').Value)</_VersionCore>
+    <FileVersion Condition="'$(_VersionCore)' != ''">$(_VersionCore).0</FileVersion>
+    <AssemblyVersion Condition="'$(_VersionCore)' != ''">$([System.Version]::Parse($(_VersionCore)).Major).0.0.0</AssemblyVersion>
+  </PropertyGroup>
+
+</Project>

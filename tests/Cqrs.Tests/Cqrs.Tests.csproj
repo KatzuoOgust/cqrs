@@ -5,8 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>KatzuoOgust.Cqrs</RootNamespace>
     <Nullable>enable</Nullable>
-    <IsPackable>false</IsPackable>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
