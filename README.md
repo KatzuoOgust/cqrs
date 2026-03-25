@@ -1,5 +1,9 @@
 # Cqrs
 
+<p align="center">
+  <img src="icon.svg" width="96" alt="Cqrs" />
+</p>
+
 ![CI](https://github.com/KatzuoOgust/cqrs/actions/workflows/ci.yml/badge.svg)
 
 Lightweight, framework-agnostic CQRS abstractions for .NET 10. Zero NuGet dependencies in the core library.
