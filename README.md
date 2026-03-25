@@ -137,7 +137,7 @@ IDispatcher dispatcher = new Dispatcher(sp);
 public class ValidationMiddleware : IRequestMiddleware<CreateOrderCommand, Unit>
 {
     public async Task<Unit> HandleAsync(CreateOrderCommand req, CancellationToken ct,
-        Func<CancellationToken, Task<Unit>> next)
+        RequestMiddlewareDelegate<Unit> next)
     {
         // validate...
         return await next(ct);
@@ -155,7 +155,7 @@ IDispatcher dispatcher = new MiddlewareAwareDispatcher(new Dispatcher(sp), sp);
 public class LoggingBehaviour : IRequestPipelineBehaviour
 {
     public async Task<object?> HandleAsync(IRequest request, CancellationToken ct,
-        Func<CancellationToken, Task<object?>> next)
+        RequestBehaviourDelegate next)
     {
         Console.WriteLine($"→ {request.GetType().Name}");
         var result = await next(ct);
