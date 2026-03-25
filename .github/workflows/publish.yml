@@ -2,7 +2,7 @@ name: Publish
 
 on:
   push:
-    tags: ["v*"]
+    tags: ["v*.*.*"]
 
 jobs:
   publish:
@@ -19,8 +19,8 @@ jobs:
 
       - name: Pack
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          dotnet pack Cqrs.slnx -c Release -p:VersionPrefix=$VERSION --output ./artifacts/nupkgs
+          VERSION="${{ github.ref_name }}"
+          dotnet pack Cqrs.slnx -c Release -o artifacts -p:Version="${VERSION#v}"
 
       - name: Push
-        run: dotnet nuget push ./artifacts/nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

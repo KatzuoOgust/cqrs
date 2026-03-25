@@ -12,9 +12,8 @@
     AssemblyVersion — major.0.0.0 so binary references survive minor/patch bumps.
   -->
   <PropertyGroup>
-    <_VersionCore>$([System.Text.RegularExpressions.Regex]::Match($(Version), '^\d+\.\d+\.\d+').Value)</_VersionCore>
-    <FileVersion Condition="'$(_VersionCore)' != ''">$(_VersionCore).0</FileVersion>
-    <AssemblyVersion Condition="'$(_VersionCore)' != ''">$([System.Version]::Parse($(_VersionCore)).Major).0.0.0</AssemblyVersion>
+    <AssemblyVersion>$([System.Text.RegularExpressions.Regex]::Match($(Version), '^\d+').Value).0.0.0</AssemblyVersion>
+    <FileVersion>$([System.Text.RegularExpressions.Regex]::Match($(Version), '^\d+\.\d+\.\d+').Value).0</FileVersion>
   </PropertyGroup>
 
 </Project>
