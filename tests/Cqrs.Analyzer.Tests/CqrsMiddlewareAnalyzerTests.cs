@@ -21,7 +21,7 @@ public sealed class CqrsMiddlewareAnalyzerTests
 		                      class MyMiddleware : IRequestMiddleware<MyQuery, int>
 		                      {
 		                          public Task<int> HandleAsync(MyQuery request, CancellationToken ct,
-		                              Func<CancellationToken, Task<int>> next)
+		                              RequestMiddlewareDelegate<int> next)
 		                              => Task.FromResult(42);
 		                      }
 		                      """;
@@ -46,7 +46,7 @@ public sealed class CqrsMiddlewareAnalyzerTests
 		                      class MyMiddleware : IRequestMiddleware<MyQuery, int>
 		                      {
 		                          public async Task<int> HandleAsync(MyQuery request, CancellationToken ct,
-		                              Func<CancellationToken, Task<int>> next)
+		                              RequestMiddlewareDelegate<int> next)
 		                          {
 		                              var result = await next(ct);
 		                              return result;
@@ -72,7 +72,7 @@ public sealed class CqrsMiddlewareAnalyzerTests
 		                      class MyMiddleware : IRequestMiddleware<MyQuery, int>
 		                      {
 		                          public Task<int> HandleAsync(MyQuery request, CancellationToken ct,
-		                              Func<CancellationToken, Task<int>> next) => next(ct);
+		                              RequestMiddlewareDelegate<int> next) => next(ct);
 		                      }
 		                      """;
 
@@ -94,7 +94,7 @@ public sealed class CqrsMiddlewareAnalyzerTests
 		                      class MyMiddleware : IRequestMiddleware<MyQuery, int>
 		                      {
 		                          public Task<int> HandleAsync(MyQuery request, CancellationToken ct,
-		                              Func<CancellationToken, Task<int>> continuePipeline) => continuePipeline(ct);
+		                              RequestMiddlewareDelegate<int> continuePipeline) => continuePipeline(ct);
 		                      }
 		                      """;
 
@@ -118,7 +118,7 @@ public sealed class CqrsMiddlewareAnalyzerTests
 		                      class MyBehaviour : IRequestPipelineBehaviour
 		                      {
 		                          public async Task<object?> HandleAsync(IRequest request, CancellationToken ct,
-		                              Func<CancellationToken, Task<object?>> next)
+		                              RequestBehaviourDelegate next)
 		                          {
 		                              var q = (MyQuery)request;
 		                              return await next(ct);
@@ -147,7 +147,7 @@ public sealed class CqrsMiddlewareAnalyzerTests
 		                      class MyBehaviour : IRequestPipelineBehaviour
 		                      {
 		                          public async Task<object?> HandleAsync(IRequest request, CancellationToken ct,
-		                              Func<CancellationToken, Task<object?>> next)
+		                              RequestBehaviourDelegate next)
 		                          {
 		                              var q = request as MyQuery;
 		                              return await next(ct);
@@ -174,7 +174,7 @@ public sealed class CqrsMiddlewareAnalyzerTests
 		                      class MyBehaviour : IRequestPipelineBehaviour
 		                      {
 		                          public async Task<object?> HandleAsync(IRequest request, CancellationToken ct,
-		                              Func<CancellationToken, Task<object?>> next)
+		                              RequestBehaviourDelegate next)
 		                          {
 		                              if (request is MyQuery q) _ = q;
 		                              return await next(ct);
@@ -200,7 +200,7 @@ public sealed class CqrsMiddlewareAnalyzerTests
 		                      class MyBehaviour : IRequestPipelineBehaviour
 		                      {
 		                          public Task<object?> HandleAsync(IRequest request, CancellationToken ct,
-		                              Func<CancellationToken, Task<object?>> next) => next(ct);
+		                              RequestBehaviourDelegate next) => next(ct);
 		                      }
 		                      """;
 
@@ -223,10 +223,10 @@ public sealed class CqrsMiddlewareAnalyzerTests
 		                      class MyHandler : IRequestMiddleware<MyQuery, int>, IRequestPipelineBehaviour
 		                      {
 		                          public Task<int> HandleAsync(MyQuery request, CancellationToken ct,
-		                              Func<CancellationToken, Task<int>> next) => next(ct);
+		                              RequestMiddlewareDelegate<int> next) => next(ct);
 
 		                          public async Task<object?> HandleAsync(IRequest request, CancellationToken ct,
-		                              Func<CancellationToken, Task<object?>> next)
+		                              RequestBehaviourDelegate next)
 		                          {
 		                              var q = (MyQuery)request;
 		                              return await next(ct);

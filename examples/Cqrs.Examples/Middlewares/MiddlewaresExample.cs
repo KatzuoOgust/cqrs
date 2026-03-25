@@ -32,7 +32,7 @@ internal sealed class ShipOrderLoggingMiddleware : IRequestMiddleware<ShipOrderC
 	public async Task<Unit> HandleAsync(
 		ShipOrderCommand request,
 		CancellationToken ct,
-		Func<CancellationToken, Task<Unit>> next)
+		RequestMiddlewareDelegate<Unit> next)
 	{
 		Console.WriteLine($"    [Middleware:Log] → ShipOrderCommand {request.OrderId}");
 		var result = await next(ct);
@@ -46,7 +46,7 @@ internal sealed class ShipOrderValidationMiddleware : IRequestMiddleware<ShipOrd
 	public async Task<Unit> HandleAsync(
 		ShipOrderCommand request,
 		CancellationToken ct,
-		Func<CancellationToken, Task<Unit>> next)
+		RequestMiddlewareDelegate<Unit> next)
 	{
 		if (string.IsNullOrWhiteSpace(request.Destination))
 			throw new ArgumentException("Destination is required.");

@@ -20,7 +20,7 @@ public sealed class BehaviourAwareEventDispatcher(IEventDispatcher inner, IServi
 			serviceProvider.GetService(typeof(IEnumerable<IEventPipelineBehaviour>)) ?? [])
 			.ToArray();
 
-		Func<CancellationToken, Task> terminal = c => inner.DispatchAsync(@event, c);
+		EventBehaviourDelegate terminal = c => inner.DispatchAsync(@event, c);
 
 		for (var i = behaviours.Length - 1; i >= 0; i--)
 		{

@@ -17,7 +17,7 @@ public sealed partial class MiddlewareAwareEventDispatcherTests
 	private sealed class LoggingMiddleware(List<string> log, string name)
 		: IEventMiddleware<OrderPlacedEvent>
 	{
-		public async Task HandleAsync(OrderPlacedEvent @event, CancellationToken ct, Func<CancellationToken, Task> next)
+		public async Task HandleAsync(OrderPlacedEvent @event, CancellationToken ct, EventMiddlewareDelegate next)
 		{
 			log.Add($"{name}:before");
 			await next(ct);

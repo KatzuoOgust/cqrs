@@ -44,7 +44,7 @@ internal sealed class LoggingBehaviour : IRequestPipelineBehaviour
 	public async Task<object?> HandleAsync(
 		IRequest request,
 		CancellationToken ct,
-		Func<CancellationToken, Task<object?>> next)
+		RequestBehaviourDelegate next)
 	{
 		Console.WriteLine($"    [Behaviour:Log] → {request.GetType().Name}");
 		var result = await next(ct);
@@ -58,7 +58,7 @@ internal sealed class ValidationBehaviour : IRequestPipelineBehaviour
 	public async Task<object?> HandleAsync(
 		IRequest request,
 		CancellationToken ct,
-		Func<CancellationToken, Task<object?>> next)
+		RequestBehaviourDelegate next)
 	{
 		Console.WriteLine($"    [Behaviour:Validation] Checking {request.GetType().Name}");
 		return await next(ct);
@@ -76,7 +76,7 @@ internal sealed class ProductPriceMiddleware : IRequestMiddleware<CreateProductC
 	public async Task<Unit> HandleAsync(
 		CreateProductCommand request,
 		CancellationToken ct,
-		Func<CancellationToken, Task<Unit>> next)
+		RequestMiddlewareDelegate<Unit> next)
 	{
 		if (request.Price <= 0)
 			throw new ArgumentException("Price must be positive.");

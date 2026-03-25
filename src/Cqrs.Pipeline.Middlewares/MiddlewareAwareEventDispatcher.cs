@@ -13,8 +13,9 @@ namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 /// </param>
 public sealed class MiddlewareAwareEventDispatcher(IEventDispatcher inner, IServiceProvider serviceProvider) : IEventDispatcher
 {
-	private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, IEventDispatcher, object, CancellationToken, Task>>
-		_cache = new();
+	private delegate Task EventInvoker(IServiceProvider sp, IEventDispatcher inner, object evt, CancellationToken ct);
+
+	private static readonly ConcurrentDictionary<Type, EventInvoker> _cache = new();
 
 	/// <inheritdoc/>
 	public Task DispatchAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
@@ -26,7 +27,7 @@ public sealed class MiddlewareAwareEventDispatcher(IEventDispatcher inner, IServ
 			.Invoke(serviceProvider, inner, @event, cancellationToken);
 	}
 
-	private static Func<IServiceProvider, IEventDispatcher, object, CancellationToken, Task> BuildInvoker(Type eventType)
+	private static EventInvoker BuildInvoker(Type eventType)
 	{
 		var invokerType = typeof(Invoker<>).MakeGenericType(eventType);
 
@@ -40,7 +41,7 @@ public sealed class MiddlewareAwareEventDispatcher(IEventDispatcher inner, IServ
 			sp, bus, Expression.Convert(evt, eventType), ct);
 
 		return Expression
-			.Lambda<Func<IServiceProvider, IEventDispatcher, object, CancellationToken, Task>>(body, sp, bus, evt, ct)
+			.Lambda<EventInvoker>(body, sp, bus, evt, ct)
 			.Compile();
 	}
 
@@ -53,7 +54,7 @@ public sealed class MiddlewareAwareEventDispatcher(IEventDispatcher inner, IServ
 				sp.GetService(typeof(IEnumerable<IEventMiddleware<TEvent>>)) ?? [])
 				.ToArray();
 
-			Func<CancellationToken, Task> terminal = c => inner.DispatchAsync(@event, c);
+			EventMiddlewareDelegate terminal = c => inner.DispatchAsync(@event, c);
 
 			for (var i = middlewares.Length - 1; i >= 0; i--)
 			{

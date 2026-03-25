@@ -23,7 +23,7 @@ public sealed class BehaviourAwareDispatcher(IDispatcher inner, IServiceProvider
 			serviceProvider.GetService(typeof(IEnumerable<IRequestPipelineBehaviour>)) ?? [])
 			.ToArray();
 
-		Func<CancellationToken, Task<object?>> terminal = async c => await inner.InvokeAsync(request, c);
+		RequestBehaviourDelegate terminal = async c => await inner.InvokeAsync(request, c);
 
 		for (var i = behaviours.Length - 1; i >= 0; i--)
 		{

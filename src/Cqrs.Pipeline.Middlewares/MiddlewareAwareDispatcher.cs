@@ -13,8 +13,9 @@ namespace KatzuoOgust.Cqrs.Pipeline.Middlewares;
 /// </param>
 public sealed class MiddlewareAwareDispatcher(IDispatcher inner, IServiceProvider serviceProvider) : IDispatcher
 {
-	private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, IDispatcher, object, CancellationToken, Task<object?>>>
-		_cache = new();
+	private delegate Task<object?> RequestInvoker(IServiceProvider sp, IDispatcher inner, object req, CancellationToken ct);
+
+	private static readonly ConcurrentDictionary<Type, RequestInvoker> _cache = new();
 
 	/// <inheritdoc/>
 	public async Task<TResult> InvokeAsync<TResult>(
@@ -28,7 +29,7 @@ public sealed class MiddlewareAwareDispatcher(IDispatcher inner, IServiceProvide
 		return (TResult)(await invoke(serviceProvider, inner, request, cancellationToken))!;
 	}
 
-	private static Func<IServiceProvider, IDispatcher, object, CancellationToken, Task<object?>> BuildInvoker(
+	private static RequestInvoker BuildInvoker(
 		Type requestType, Type resultType)
 	{
 		var invokerType = typeof(Invoker<,>).MakeGenericType(requestType, resultType);
@@ -43,7 +44,7 @@ public sealed class MiddlewareAwareDispatcher(IDispatcher inner, IServiceProvide
 			sp, disp, Expression.Convert(req, typeof(IRequest<>).MakeGenericType(resultType)), ct);
 
 		return Expression
-			.Lambda<Func<IServiceProvider, IDispatcher, object, CancellationToken, Task<object?>>>(body, sp, disp, req, ct)
+			.Lambda<RequestInvoker>(body, sp, disp, req, ct)
 			.Compile();
 	}
 
@@ -57,7 +58,7 @@ public sealed class MiddlewareAwareDispatcher(IDispatcher inner, IServiceProvide
 				sp.GetService(typeof(IEnumerable<IRequestMiddleware<TRequest, TResult>>)) ?? [])
 				.ToArray();
 
-			Func<CancellationToken, Task<TResult>> terminal = c => inner.InvokeAsync(request, c);
+			RequestMiddlewareDelegate<TResult> terminal = c => inner.InvokeAsync(request, c);
 
 			for (var i = middlewares.Length - 1; i >= 0; i--)
 			{

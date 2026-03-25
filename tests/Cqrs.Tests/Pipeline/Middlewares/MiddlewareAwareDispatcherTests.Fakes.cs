@@ -31,7 +31,7 @@ public sealed partial class MiddlewareAwareDispatcherTests
 	private sealed class MultiplierMiddleware(List<string> log, string name, int factor)
 		: IRequestMiddleware<AddCommand, int>
 	{
-		public async Task<int> HandleAsync(AddCommand request, CancellationToken ct, Func<CancellationToken, Task<int>> next)
+		public async Task<int> HandleAsync(AddCommand request, CancellationToken ct, RequestMiddlewareDelegate<int> next)
 		{
 			log.Add($"{name}:before");
 			var result = await next(ct);
@@ -42,7 +42,7 @@ public sealed partial class MiddlewareAwareDispatcherTests
 
 	private sealed class Doubling : IRequestMiddleware<MultiplyQuery, int>
 	{
-		public async Task<int> HandleAsync(MultiplyQuery request, CancellationToken ct, Func<CancellationToken, Task<int>> next) =>
+		public async Task<int> HandleAsync(MultiplyQuery request, CancellationToken ct, RequestMiddlewareDelegate<int> next) =>
 			await next(ct) * 2;
 	}
 
@@ -50,7 +50,7 @@ public sealed partial class MiddlewareAwareDispatcherTests
 	{
 		public bool Invoked { get; private set; }
 
-		public async Task<Unit> HandleAsync(LogCommand request, CancellationToken ct, Func<CancellationToken, Task<Unit>> next)
+		public async Task<Unit> HandleAsync(LogCommand request, CancellationToken ct, RequestMiddlewareDelegate<Unit> next)
 		{
 			Invoked = true;
 			return await next(ct);

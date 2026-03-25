@@ -16,7 +16,7 @@ public sealed partial class BehaviourAwareEventDispatcherTests
 
 	private sealed class LoggingBehaviour(List<string> log, string name) : IEventPipelineBehaviour
 	{
-		public async Task HandleAsync(IEvent @event, CancellationToken ct, Func<CancellationToken, Task> next)
+		public async Task HandleAsync(IEvent @event, CancellationToken ct, EventBehaviourDelegate next)
 		{
 			log.Add($"{name}:before");
 			await next(ct);
@@ -26,7 +26,7 @@ public sealed partial class BehaviourAwareEventDispatcherTests
 
 	private sealed class CapturingBehaviour(Action<IEvent> capture) : IEventPipelineBehaviour
 	{
-		public async Task HandleAsync(IEvent @event, CancellationToken ct, Func<CancellationToken, Task> next)
+		public async Task HandleAsync(IEvent @event, CancellationToken ct, EventBehaviourDelegate next)
 		{
 			capture(@event);
 			await next(ct);

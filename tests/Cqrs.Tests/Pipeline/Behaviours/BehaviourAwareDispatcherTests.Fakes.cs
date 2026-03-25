@@ -10,7 +10,7 @@ public sealed partial class BehaviourAwareDispatcherTests
 
 	private sealed class LoggingBehaviour(List<string> log, string name) : IRequestPipelineBehaviour
 	{
-		public async Task<object?> HandleAsync(IRequest request, CancellationToken ct, Func<CancellationToken, Task<object?>> next)
+		public async Task<object?> HandleAsync(IRequest request, CancellationToken ct, RequestBehaviourDelegate next)
 		{
 			log.Add($"{name}:before");
 			var result = await next(ct);
@@ -21,7 +21,7 @@ public sealed partial class BehaviourAwareDispatcherTests
 
 	private sealed class CapturingBehaviour(Action<IRequest> capture) : IRequestPipelineBehaviour
 	{
-		public async Task<object?> HandleAsync(IRequest request, CancellationToken ct, Func<CancellationToken, Task<object?>> next)
+		public async Task<object?> HandleAsync(IRequest request, CancellationToken ct, RequestBehaviourDelegate next)
 		{
 			capture(request);
 			return await next(ct);

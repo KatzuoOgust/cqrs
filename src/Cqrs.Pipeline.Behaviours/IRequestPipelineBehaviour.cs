@@ -14,6 +14,6 @@ public interface IRequestPipelineBehaviour
 	/// <param name="next">The continuation delegate; must be called to continue the pipeline.</param>
 	/// <returns>The result produced by the pipeline or handler, boxed as <see cref="object"/>.</returns>
 #pragma warning disable CA1068 // CancellationToken intentionally precedes the next delegate so callers can pass ct into it
-	public Task<object?> HandleAsync(IRequest request, CancellationToken ct, Func<CancellationToken, Task<object?>> next);
+	public Task<object?> HandleAsync(IRequest request, CancellationToken ct, RequestBehaviourDelegate next);
 #pragma warning restore CA1068
 }

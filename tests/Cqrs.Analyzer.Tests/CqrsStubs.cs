@@ -58,23 +58,25 @@ internal static class CqrsStubs
 	                                         using System.Threading.Tasks;
 	                                         namespace KatzuoOgust.Cqrs.Pipeline.Middlewares
 	                                         {
+	                                             public delegate Task<TResult> RequestMiddlewareDelegate<TResult>(CancellationToken ct);
 	                                             public interface IRequestMiddleware<TRequest, TResult>
 	                                                 where TRequest : KatzuoOgust.Cqrs.IRequest<TResult>
 	                                             {
 	                                                 Task<TResult> HandleAsync(
 	                                                     TRequest request,
 	                                                     CancellationToken ct,
-	                                                     Func<CancellationToken, Task<TResult>> next);
+	                                                     RequestMiddlewareDelegate<TResult> next);
 	                                             }
 	                                         }
 	                                         namespace KatzuoOgust.Cqrs.Pipeline.Behaviours
 	                                         {
+	                                             public delegate Task<object?> RequestBehaviourDelegate(CancellationToken ct);
 	                                             public interface IRequestPipelineBehaviour
 	                                             {
 	                                                 Task<object?> HandleAsync(
 	                                                     KatzuoOgust.Cqrs.IRequest request,
 	                                                     CancellationToken ct,
-	                                                     Func<CancellationToken, Task<object?>> next);
+	                                                     RequestBehaviourDelegate next);
 	                                             }
 	                                         }
 	                                         """;
