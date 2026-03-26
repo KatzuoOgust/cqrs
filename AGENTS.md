@@ -70,8 +70,7 @@ Test classes are named `{Subject}Tests`. Test methods follow **`Subject_Result[_
 
 | Situation | Where |
 |---|---|
-| ≤ 5 lines total across all fixtures for the test class | Inline `private` nested type in the test class |
-| > 5 lines, used by one test class | `{TestClass}.Fakes.cs` sibling file — add `partial` to the test class |
+| Private to one test class | `{TestClass}.Fakes.cs` sibling file — add `partial` to the test class |
 | Used by two or more test classes | `tests/Cqrs.Tests/Fakes/` — `internal` top-level type, namespace `KatzuoOgust.Cqrs` |
 
 Full detail (including the `Error` helper pattern for production code) is in [CONTRIBUTING.md](CONTRIBUTING.md).

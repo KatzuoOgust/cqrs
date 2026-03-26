@@ -139,8 +139,7 @@ Private fixture types (stubs, fakes, records, handler implementations) follow th
 
 | Situation | Where to put it |
 |---|---|
-| ≤ 5 lines total across all fixtures for a test class | Inline as `private` nested types in the test class |
-| > 5 lines, specific to one test class | `{TestClass}.Fakes.cs` sibling file, same namespace, `partial` on the test class |
+| Private to one test class | `{TestClass}.Fakes.cs` sibling file, same namespace, `partial` on the test class |
 | Used by two or more test classes | `tests/Cqrs.Tests/Fakes/` — `internal` top-level type, namespace `KatzuoOgust.Cqrs` |
 
 ```
