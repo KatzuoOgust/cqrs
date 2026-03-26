@@ -106,14 +106,14 @@ These invariants must never be broken:
 Test classes are named `{Subject}Tests`. Test methods follow:
 
 ```
-Subject_Result_WhenCondition
+Subject_Result[_WhenCondition]
 ```
 
 | Part | What it captures | Examples |
 |---|---|---|
 | **Subject** | Method or member under test | `InvokeAsync`, `Ctor`, `GetService` |
 | **Result** | Expected outcome | `ThrowsArgumentNullException`, `ReturnsUnit`, `InvokesHandler` |
-| **Condition** | `When…` scenario; omit if unconditional | `WhenRequestIsNull`, `WhenVoidCommand` |
+| **WhenCondition** | Optional `When…` scenario | `WhenRequestIsNull`, `WhenVoidCommand` |
 
 Result always comes **before** the condition. Use `When`, not `If`.
 

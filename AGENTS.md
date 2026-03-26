@@ -64,7 +64,7 @@ Add `using KatzuoOgust.Cqrs;` in any file under `Cqrs.Pipeline.*` that reference
 
 ## Writing tests
 
-Test classes are named `{Subject}Tests`. Test methods follow **`Subject_Result_WhenCondition`** — result before condition, `When` not `If`, condition omitted if unconditional.
+Test classes are named `{Subject}Tests`. Test methods follow **`Subject_Result[_WhenCondition]`** — result before condition, `When` not `If`.
 
 ### Placement of fixture types (stubs, fakes, records, handler implementations)
 
