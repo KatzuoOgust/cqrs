@@ -87,29 +87,17 @@ Decorators are applied in **registration order** — first registered wraps the 
 ## Usage
 
 ```csharp
-// Command
-public record CreateOrderCommand(Guid OrderId) : ICommand;
-
-public class CreateOrderHandler : ICommandHandler<CreateOrderCommand>
-{
-    public Task HandleAsync(CreateOrderCommand command, CancellationToken ct = default)
-    {
-        // ...
-        return Task.CompletedTask;
-    }
-}
-
-// Query
+// Building on the Quick start — add a query and an event:
 public record GetOrderQuery(Guid OrderId) : IQuery<OrderDto>;
 
-// Dispatch
+public record OrderShipped(Guid OrderId) : IEvent;
+
+// Dispatch a command and a query
 IDispatcher dispatcher = new Dispatcher(serviceProvider);
 await dispatcher.InvokeAsync(new CreateOrderCommand(Guid.NewGuid()));
 var order = await dispatcher.InvokeAsync(new GetOrderQuery(id));
 
-// Event
-public record OrderShipped(Guid OrderId) : IEvent;
-
+// Publish an event (fans out to all registered IEventHandler<OrderShipped>)
 IEventBus bus = new EventDispatcher(serviceProvider);
 await bus.PublishAsync(new OrderShipped(id));
 ```

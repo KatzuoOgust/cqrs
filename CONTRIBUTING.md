@@ -53,7 +53,21 @@ Fork the repo, create a branch from `main`, make your changes following the conv
 
 4. **Commit** with a clear, focused message. One concern per commit.
 
-5. **Push** and open a pull request against `main` with a short summary of what changed and why. See [Pull requests](#pull-requests) for the checklist.
+5. **Push** and open a pull request against `main` with a short summary of what changed and why.
+
+## Pull requests
+
+- Keep changes focused — one concern per PR.
+- Include a short summary of what changed and why.
+- All tests must pass (`make test`).
+- New public API surface needs at least one test covering the happy path and one covering argument validation.
+- Update `README.md` if you add, remove, or change public types or their behaviour.
+
+## Scope
+
+**In scope:** new abstractions and null-objects in `src/Cqrs/`, new middleware/behaviour types, new analyzer rules, test improvements, documentation.
+
+**Out of scope:** concrete dispatcher implementations (those belong in consumer packages), any `PackageReference` in `Cqrs.csproj`, breaking changes to public interfaces. If you're unsure whether a change is welcome, open an issue first.
 
 ## Repository layout
 
@@ -66,12 +80,6 @@ Fork the repo, create a branch from `main`, make your changes following the conv
 | `src/Cqrs.Analyzer/` | Roslyn analyzers enforcing CQRS usage rules (see `README.md` for diagnostic IDs) |
 | `tests/Cqrs.Tests/` | All tests — subdirectory mirrors the subject's namespace |
 | `examples/Cqrs.Examples/` | Runnable examples for all three pipeline layers |
-
-## Scope
-
-**In scope:** new abstractions and null-objects in `src/Cqrs/`, new middleware/behaviour types, new analyzer rules, test improvements, documentation.
-
-**Out of scope:** concrete dispatcher implementations (those belong in consumer packages), any `PackageReference` in `Cqrs.csproj`, breaking changes to public interfaces. If you're unsure whether a change is welcome, open an issue first.
 
 ## Design rules
 
@@ -209,11 +217,3 @@ throw Error.NoSuitableConstructor(serviceType, decoratorType);
 ```
 
 **Do not** replace `ArgumentNullException.ThrowIfNull(…)` or any other BCL `XxxException.ThrowIfXxx(…)` calls — leave those untouched. Only raw `new XxxException(…)` throws and `if (!cond) throw new …` blocks move into `Error`.
-
-## Pull requests
-
-- Keep changes focused — one concern per PR.
-- Include a short summary of what changed and why.
-- All tests must pass (`make test`).
-- New public API surface needs at least one test covering the happy path and one covering argument validation.
-- Update `README.md` if you add, remove, or change public types or their behaviour.

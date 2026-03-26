@@ -42,7 +42,7 @@ dotnet test tests/Cqrs.Tests --filter "FullyQualifiedName~NullCommandHandlerTest
 
 ## Namespaces
 
-Strip `.Tests` when deriving `RootNamespace`; keep all other suffixes.
+Strip `.Tests`, `.Core`, `.Abstractions` when deriving `RootNamespace`; keep all other suffixes.
 
 | Project | `<RootNamespace>` |
 |---|---|
