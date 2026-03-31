@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <RootNamespace>KatzuoOgust.Cqrs.Analyzer</RootNamespace>
+    <AssemblyName>KatzuoOgust.Cqrs.Analyzer.Tests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

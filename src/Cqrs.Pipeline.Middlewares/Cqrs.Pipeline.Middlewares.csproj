@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\Cqrs\Cqrs.csproj" />
@@ -6,6 +6,7 @@
 
   <PropertyGroup>
     <RootNamespace>KatzuoOgust.Cqrs.Pipeline.Middlewares</RootNamespace>
+    <AssemblyName>KatzuoOgust.Cqrs.Pipeline.Middlewares</AssemblyName>
     <PackageId>KatzuoOgust.Cqrs.Pipeline.Middlewares</PackageId>
     <Description>Typed per-request and per-event middleware for KatzuoOgust.Cqrs.</Description>
   </PropertyGroup>

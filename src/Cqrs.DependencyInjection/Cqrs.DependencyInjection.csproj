@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\Cqrs\Cqrs.csproj" />
@@ -6,6 +6,7 @@
 
   <PropertyGroup>
     <RootNamespace>KatzuoOgust.Cqrs.DependencyInjection</RootNamespace>
+    <AssemblyName>KatzuoOgust.Cqrs.DependencyInjection</AssemblyName>
     <PackageId>KatzuoOgust.Cqrs.DependencyInjection</PackageId>
     <Description>IServiceProvider decorator that layers exact and open-generic decorators over an existing container.</Description>
   </PropertyGroup>

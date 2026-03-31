@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\Cqrs\Cqrs.csproj" />
@@ -6,6 +6,7 @@
 
   <PropertyGroup>
     <RootNamespace>KatzuoOgust.Cqrs.Pipeline.Behaviours</RootNamespace>
+    <AssemblyName>KatzuoOgust.Cqrs.Pipeline.Behaviours</AssemblyName>
     <PackageId>KatzuoOgust.Cqrs.Pipeline.Behaviours</PackageId>
     <Description>Non-generic cross-cutting pipeline behaviours for KatzuoOgust.Cqrs.</Description>
   </PropertyGroup>

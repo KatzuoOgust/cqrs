@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <RootNamespace>KatzuoOgust.Cqrs</RootNamespace>
+    <AssemblyName>KatzuoOgust.Cqrs</AssemblyName>
     <PackageId>KatzuoOgust.Cqrs</PackageId>
     <Description>Lightweight, framework-agnostic CQRS abstractions for .NET. Zero NuGet dependencies.</Description>
   </PropertyGroup>
