@@ -17,7 +17,7 @@ pack: ## Pack NuGet packages to ./artifacts/nupkgs
 
 clean: ## Remove build artefacts (bin/obj/artifacts)
 	dotnet clean Cqrs.slnx
-	rm -rf artifacts
+	rm -rf ./artifacts
 
 format: ## Format source with dotnet format
 	dotnet format Cqrs.slnx
