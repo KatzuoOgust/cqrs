@@ -19,10 +19,15 @@ Lightweight, framework-agnostic CQRS abstractions for .NET 10. Zero NuGet depend
 dotnet add package KatzuoOgust.Cqrs
 
 # optional add-ons
-dotnet add package KatzuoOgust.Cqrs.Pipeline.Middlewares   # typed per-request middleware
-dotnet add package KatzuoOgust.Cqrs.Pipeline.Behaviours    # non-generic cross-cutting behaviours
-dotnet add package KatzuoOgust.Cqrs.DependencyInjection    # handler decorator support
-dotnet add package KatzuoOgust.Cqrs.Analyzer               # compile-time CQRS rules
+dotnet add package KatzuoOgust.Cqrs.Pipeline.Middlewares          # typed per-request middleware
+dotnet add package KatzuoOgust.Cqrs.Pipeline.Behaviours           # non-generic cross-cutting behaviours
+dotnet add package KatzuoOgust.Cqrs.DependencyInjection           # handler decorator support
+dotnet add package KatzuoOgust.Cqrs.Analyzer                      # compile-time CQRS rules
+
+# logging add-ons
+dotnet add package KatzuoOgust.Cqrs.Pipeline.Middlewares.Logging  # structured logging middleware
+dotnet add package KatzuoOgust.Cqrs.Pipeline.Behaviours.Logging   # structured logging behaviours
+dotnet add package KatzuoOgust.Cqrs.Flow.Logging                  # structured logging for flow
 ```
 
 ## Quick start
@@ -54,8 +59,12 @@ See [Usage](#usage) for queries, events, middleware, and the full pipeline stack
 | `Cqrs` | `KatzuoOgust.Cqrs` | Core interfaces, null-object handlers, `Dispatcher`, `EventDispatcher` |
 | `Cqrs.Pipeline.Middlewares` | `KatzuoOgust.Cqrs.Pipeline.Middlewares` | Typed per-request/event middleware with full result access |
 | `Cqrs.Pipeline.Behaviours` | `KatzuoOgust.Cqrs.Pipeline.Behaviours` | Non-generic cross-cutting pipeline behaviours |
+| `Cqrs.Flow` | `KatzuoOgust.Cqrs.Flow` | Command chaining and composition for workflow orchestration |
 | `Cqrs.DependencyInjection` | `KatzuoOgust.Cqrs.DependencyInjection` | `IServiceProvider` decorator that layers exact and open-generic handler decorators |
 | `Cqrs.Analyzer` | `KatzuoOgust.Cqrs.Analyzer` | Roslyn analyzers that enforce CQRS usage rules at compile time |
+| `Cqrs.Pipeline.Middlewares.Logging` | `KatzuoOgust.Cqrs.Pipeline.Middlewares.Logging` | Structured logging middleware for requests and events |
+| `Cqrs.Pipeline.Behaviours.Logging` | `KatzuoOgust.Cqrs.Pipeline.Behaviours.Logging` | Structured logging behaviours for cross-cutting request/event logging |
+| `Cqrs.Flow.Logging` | `KatzuoOgust.Cqrs.Flow.Logging` | Structured logging for command flow execution and orchestration |
 
 ## Core abstractions (`Cqrs`)
 
@@ -83,6 +92,29 @@ Implement `IRequestPipelineBehaviour` to intercept every request regardless of t
 | `.When(predicate, configure)` | Applies inner decorators only when predicate returns `true` |
 
 Decorators are applied in **registration order** — first registered wraps the raw service, last registered is outermost.
+
+## Logging (`Cqrs.Pipeline.*.Logging`)
+
+Three optional logging packages provide structured logging with `Microsoft.Extensions.Logging.Abstractions`:
+
+- **`Cqrs.Pipeline.Middlewares.Logging`** — `LoggingRequestMiddleware<TRequest, TResponse>` and `LoggingEventMiddleware<TEvent>` wrap middleware pipelines
+- **`Cqrs.Pipeline.Behaviours.Logging`** — `LoggingRequestPipelineBehaviour` and `LoggingEventPipelineBehaviour` log cross-cutting request/event processing
+- **`Cqrs.Flow.Logging`** — `LoggingFlowCommandHandler<TCommand>` logs command flow execution and enqueued commands
+
+All log at `LogLevel.Debug` for entry/exit, `LogLevel.Error` for exceptions, and include elapsed time.
+
+```csharp
+// Register logging middleware
+services.AddSingleton(typeof(IRequestMiddleware<,>), typeof(LoggingRequestMiddleware<,>));
+services.AddSingleton(typeof(IEventMiddleware<>), typeof(LoggingEventMiddleware<>));
+
+// Register logging behaviours
+services.AddSingleton<IRequestPipelineBehaviour, LoggingRequestPipelineBehaviour>();
+services.AddSingleton<IEventPipelineBehaviour, LoggingEventPipelineBehaviour>();
+
+// Wrap flow handlers
+services.Decorate(typeof(IFlowCommandHandler<>), typeof(LoggingFlowCommandHandler<>));
+```
 
 ## Usage
 

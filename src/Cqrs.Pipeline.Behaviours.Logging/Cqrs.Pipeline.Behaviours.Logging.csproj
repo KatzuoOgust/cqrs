@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <ProjectReference Include="..\Cqrs.Pipeline.Behaviours\Cqrs.Pipeline.Behaviours.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <RootNamespace>KatzuoOgust.Cqrs.Pipeline.Behaviours.Logging</RootNamespace>
+    <AssemblyName>KatzuoOgust.Cqrs.Pipeline.Behaviours.Logging</AssemblyName>
+    <PackageId>KatzuoOgust.Cqrs.Pipeline.Behaviours.Logging</PackageId>
+    <Description>Logging behaviours for KatzuoOgust.Cqrs.Pipeline.Behaviours.</Description>
+  </PropertyGroup>
+
+</Project>

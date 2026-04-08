@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <ProjectReference Include="..\Cqrs.Flow\Cqrs.Flow.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <RootNamespace>KatzuoOgust.Cqrs.Flow.Logging</RootNamespace>
+    <AssemblyName>KatzuoOgust.Cqrs.Flow.Logging</AssemblyName>
+    <PackageId>KatzuoOgust.Cqrs.Flow.Logging</PackageId>
+    <Description>Logging for KatzuoOgust.Cqrs.Flow.</Description>
+  </PropertyGroup>
+
+</Project>

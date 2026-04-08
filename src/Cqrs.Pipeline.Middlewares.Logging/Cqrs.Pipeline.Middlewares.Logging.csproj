@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <ProjectReference Include="..\Cqrs.Pipeline.Middlewares\Cqrs.Pipeline.Middlewares.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <RootNamespace>KatzuoOgust.Cqrs.Pipeline.Middlewares.Logging</RootNamespace>
+    <AssemblyName>KatzuoOgust.Cqrs.Pipeline.Middlewares.Logging</AssemblyName>
+    <PackageId>KatzuoOgust.Cqrs.Pipeline.Middlewares.Logging</PackageId>
+    <Description>Logging middleware for KatzuoOgust.Cqrs.Pipeline.Middlewares.</Description>
+  </PropertyGroup>
+
+</Project>
