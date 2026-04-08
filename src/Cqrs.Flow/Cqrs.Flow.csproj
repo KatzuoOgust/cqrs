@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>KatzuoOgust.Cqrs.Flow</RootNamespace>
+    <AssemblyName>KatzuoOgust.Cqrs.Flow</AssemblyName>
+    <PackageId>KatzuoOgust.Cqrs.Flow</PackageId>
+    <Description>Command chaining and composition abstractions for CQRS. Enables commands to produce sequences of commands for execution.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Cqrs/Cqrs.csproj" />
+  </ItemGroup>
+
+</Project>

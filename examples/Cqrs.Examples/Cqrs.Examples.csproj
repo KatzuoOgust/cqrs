@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\src\Cqrs.Pipeline.Middlewares\Cqrs.Pipeline.Middlewares.csproj" />
     <ProjectReference Include="..\..\src\Cqrs.Pipeline.Behaviours\Cqrs.Pipeline.Behaviours.csproj" />
     <ProjectReference Include="..\..\src\Cqrs.DependencyInjection\Cqrs.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\Cqrs.Flow\Cqrs.Flow.csproj" />
   </ItemGroup>
 
 </Project>
